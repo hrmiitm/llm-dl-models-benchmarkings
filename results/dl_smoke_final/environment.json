@@ -1,0 +1,92 @@
+{
+  "started_at_utc": "2026-10-12T19:20:30.830739+00:00",
+  "python": "3.12.14",
+  "platform": "Linux-7.1.7-200.fc44.x86_64-x86_64-with-glibc2.43",
+  "git_revision": "dc8aea28e5e7b3bcc6c859f02aa67ed18105950b",
+  "source_sha256": {
+    "data_prepare.py": "817d23a1e2c601c31f25c7691640eddcc2f911d606fd1671b0b94867797b85c3",
+    "run_dl_models.py": "ef4791388a37f35f8cf41a43a4e0e981f63d4ea22ca24e3cde38d0a0f320670e",
+    "run_llm_models.py": "bd67317baf085887bc4b95cbc84cf1a8ccdf75df8b7102c5c1209c7c4b81de7c",
+    "benchmark_common.py": "f3a7cb0f7291ba12a9b0c8e47bd6ae2174053b41ac9e274a952f1442efd65caa"
+  },
+  "arguments": {
+    "input": "/home/kit/Documents/Sep2026/llm-dl-models-benchmarkings/data/test_30.csv",
+    "answer_key": "/home/kit/Documents/Sep2026/llm-dl-models-benchmarkings/data/answer_key_30.csv",
+    "output_dir": "results/dl_smoke_final",
+    "models": null,
+    "list_models": false,
+    "device": "cuda",
+    "require_t4": false,
+    "dtype": "auto",
+    "limit": 1,
+    "smoke": true,
+    "seed": 42,
+    "max_length": 512,
+    "revision": "main"
+  },
+  "inputs": {
+    "/home/kit/Documents/Sep2026/llm-dl-models-benchmarkings/data/test_30.csv": "d6b2dfe616a6bb42ee3d20fed88339855ab5e4bf50fd2907e00b5e274fa63442",
+    "/home/kit/Documents/Sep2026/llm-dl-models-benchmarkings/data/answer_key_30.csv": "dfe4c6525663fc44858b74a9348e2206c04feec16c07c90fe78f651f3c89e3aa"
+  },
+  "gpu": "NVIDIA GeForce RTX 4050 Laptop GPU",
+  "torch": "2.14.1+cu130",
+  "transformers": "5.19.0",
+  "cuda": "13.0",
+  "dtype": "torch.float16",
+  "model_config": [
+    {
+      "name": "finbert_tone",
+      "model": "yiyanghkust/finbert-tone",
+      "task": "text-classification",
+      "mapping": {
+        "label_0": "neutral",
+        "label_1": "positive",
+        "label_2": "negative"
+      }
+    },
+    {
+      "name": "finbert",
+      "model": "ProsusAI/finbert",
+      "task": "text-classification",
+      "mapping": {}
+    },
+    {
+      "name": "twitter_roberta",
+      "model": "cardiffnlp/twitter-roberta-base-sentiment-latest",
+      "task": "text-classification",
+      "mapping": {
+        "label_0": "negative",
+        "label_1": "neutral",
+        "label_2": "positive"
+      }
+    },
+    {
+      "name": "distilbert_multilingual",
+      "model": "lxyuan/distilbert-base-multilingual-cased-sentiments-student",
+      "task": "text-classification",
+      "mapping": {}
+    },
+    {
+      "name": "deberta_base_zeroshot",
+      "model": "MoritzLaurer/deberta-v3-base-zeroshot-v2.0",
+      "task": "zero-shot-classification",
+      "mapping": {}
+    },
+    {
+      "name": "deberta_zeroshot",
+      "model": "MoritzLaurer/deberta-v3-large-zeroshot-v2.0",
+      "task": "zero-shot-classification",
+      "mapping": {}
+    },
+    {
+      "name": "bart_mnli",
+      "model": "facebook/bart-large-mnli",
+      "task": "zero-shot-classification",
+      "mapping": {}
+    }
+  ],
+  "gpu_memory_bytes": 6081347584,
+  "hypothesis_template": "The financial sentiment of this statement is {}.",
+  "batch_size": 1,
+  "timing": "synchronized per-sentence inference; excludes load and warmup"
+}

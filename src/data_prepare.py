@@ -36,7 +36,7 @@ out.mkdir(exist_ok=True)
 def save_csv(filename, data, columns):
     with (out / filename).open("w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=columns,
-                                extrasaction="ignore")
+                                extrasaction="ignore", lineterminator="\n")
         writer.writeheader()
         writer.writerows(data)
 

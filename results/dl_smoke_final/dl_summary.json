@@ -1,0 +1,422 @@
+[
+  {
+    "model": "yiyanghkust/finbert-tone",
+    "model_alias": "finbert_tone",
+    "model_revision": "4921590d3c0c3832c0efea24c8381ce0bda7844b",
+    "device": "NVIDIA GeForce RTX 4050 Laptop GPU",
+    "dtype": "torch.float16",
+    "samples": 1,
+    "successful": 1,
+    "failed": 0,
+    "accuracy": 0.0,
+    "macro_f1": 0.0,
+    "balanced_accuracy": 0.0,
+    "per_class": {
+      "negative": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "support": 0
+      },
+      "neutral": {
+        "precision": 0.0,
+        "recall": 0,
+        "f1": 0.0,
+        "support": 0
+      },
+      "positive": {
+        "precision": 0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 1
+      }
+    },
+    "confusion_matrix": {
+      "negative": {
+        "negative": 0,
+        "neutral": 0,
+        "positive": 0,
+        "invalid": 0
+      },
+      "neutral": {
+        "negative": 0,
+        "neutral": 0,
+        "positive": 0,
+        "invalid": 0
+      },
+      "positive": {
+        "negative": 0,
+        "neutral": 1,
+        "positive": 0,
+        "invalid": 0
+      }
+    },
+    "load_seconds": 2.440324918999977,
+    "warmup_seconds": 0.1819597060000433,
+    "inference_total_seconds": 0.003154795999989801,
+    "average_inference_ms": 3.154795999989801,
+    "model_run_wall_seconds": 2.6255669390000094,
+    "peak_gpu_memory_bytes": 236681728,
+    "error": null
+  },
+  {
+    "model": "ProsusAI/finbert",
+    "model_alias": "finbert",
+    "model_revision": "0bc2ac10dda6929bcb1f77ccc43c7ec5c424f031",
+    "device": "NVIDIA GeForce RTX 4050 Laptop GPU",
+    "dtype": "torch.float16",
+    "samples": 1,
+    "successful": 1,
+    "failed": 0,
+    "accuracy": 1.0,
+    "macro_f1": 0.3333333333333333,
+    "balanced_accuracy": 0.3333333333333333,
+    "per_class": {
+      "negative": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "support": 0
+      },
+      "neutral": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "support": 0
+      },
+      "positive": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1
+      }
+    },
+    "confusion_matrix": {
+      "negative": {
+        "negative": 0,
+        "neutral": 0,
+        "positive": 0,
+        "invalid": 0
+      },
+      "neutral": {
+        "negative": 0,
+        "neutral": 0,
+        "positive": 0,
+        "invalid": 0
+      },
+      "positive": {
+        "negative": 0,
+        "neutral": 0,
+        "positive": 1,
+        "invalid": 0
+      }
+    },
+    "load_seconds": 2.1720465799999147,
+    "warmup_seconds": 0.003462944999910178,
+    "inference_total_seconds": 0.0029473940001025767,
+    "average_inference_ms": 2.9473940001025767,
+    "model_run_wall_seconds": 2.178584889999911,
+    "peak_gpu_memory_bytes": 235273728,
+    "error": null
+  },
+  {
+    "model": "cardiffnlp/twitter-roberta-base-sentiment-latest",
+    "model_alias": "twitter_roberta",
+    "model_revision": "3216a57f2a0d9c45a2e6c20157c20c49fb4bf9c7",
+    "device": "NVIDIA GeForce RTX 4050 Laptop GPU",
+    "dtype": "torch.float16",
+    "samples": 1,
+    "successful": 1,
+    "failed": 0,
+    "accuracy": 0.0,
+    "macro_f1": 0.0,
+    "balanced_accuracy": 0.0,
+    "per_class": {
+      "negative": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "support": 0
+      },
+      "neutral": {
+        "precision": 0.0,
+        "recall": 0,
+        "f1": 0.0,
+        "support": 0
+      },
+      "positive": {
+        "precision": 0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 1
+      }
+    },
+    "confusion_matrix": {
+      "negative": {
+        "negative": 0,
+        "neutral": 0,
+        "positive": 0,
+        "invalid": 0
+      },
+      "neutral": {
+        "negative": 0,
+        "neutral": 0,
+        "positive": 0,
+        "invalid": 0
+      },
+      "positive": {
+        "negative": 0,
+        "neutral": 1,
+        "positive": 0,
+        "invalid": 0
+      }
+    },
+    "load_seconds": 2.2092631830000755,
+    "warmup_seconds": 0.035154615999999805,
+    "inference_total_seconds": 0.003276068999866766,
+    "average_inference_ms": 3.276068999866766,
+    "model_run_wall_seconds": 2.2478232519999892,
+    "peak_gpu_memory_bytes": 265798656,
+    "error": null
+  },
+  {
+    "model": "lxyuan/distilbert-base-multilingual-cased-sentiments-student",
+    "model_alias": "distilbert_multilingual",
+    "model_revision": "cf991100d706c13c0a080c097134c05b7f436c45",
+    "device": "NVIDIA GeForce RTX 4050 Laptop GPU",
+    "dtype": "torch.float16",
+    "samples": 1,
+    "successful": 1,
+    "failed": 0,
+    "accuracy": 1.0,
+    "macro_f1": 0.3333333333333333,
+    "balanced_accuracy": 0.3333333333333333,
+    "per_class": {
+      "negative": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "support": 0
+      },
+      "neutral": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "support": 0
+      },
+      "positive": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1
+      }
+    },
+    "confusion_matrix": {
+      "negative": {
+        "negative": 0,
+        "neutral": 0,
+        "positive": 0,
+        "invalid": 0
+      },
+      "neutral": {
+        "negative": 0,
+        "neutral": 0,
+        "positive": 0,
+        "invalid": 0
+      },
+      "positive": {
+        "negative": 0,
+        "neutral": 0,
+        "positive": 1,
+        "invalid": 0
+      }
+    },
+    "load_seconds": 1.8371473360000437,
+    "warmup_seconds": 0.006376627999998163,
+    "inference_total_seconds": 0.0020741470000302797,
+    "average_inference_ms": 2.0741470000302797,
+    "model_run_wall_seconds": 1.8456932900000993,
+    "peak_gpu_memory_bytes": 284036096,
+    "error": null
+  },
+  {
+    "model": "MoritzLaurer/deberta-v3-base-zeroshot-v2.0",
+    "model_alias": "deberta_base_zeroshot",
+    "model_revision": "8e7e5af5983a0ddb1a5b45a38b129ab69e2258e8",
+    "device": "NVIDIA GeForce RTX 4050 Laptop GPU",
+    "dtype": "torch.float16",
+    "samples": 1,
+    "successful": 1,
+    "failed": 0,
+    "accuracy": 1.0,
+    "macro_f1": 0.3333333333333333,
+    "balanced_accuracy": 0.3333333333333333,
+    "per_class": {
+      "negative": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "support": 0
+      },
+      "neutral": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "support": 0
+      },
+      "positive": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1
+      }
+    },
+    "confusion_matrix": {
+      "negative": {
+        "negative": 0,
+        "neutral": 0,
+        "positive": 0,
+        "invalid": 0
+      },
+      "neutral": {
+        "negative": 0,
+        "neutral": 0,
+        "positive": 0,
+        "invalid": 0
+      },
+      "positive": {
+        "negative": 0,
+        "neutral": 0,
+        "positive": 1,
+        "invalid": 0
+      }
+    },
+    "load_seconds": 2.6647045910001452,
+    "warmup_seconds": 0.21011985599989202,
+    "inference_total_seconds": 0.028447448000179065,
+    "average_inference_ms": 28.447448000179065,
+    "model_run_wall_seconds": 2.903412754000101,
+    "peak_gpu_memory_bytes": 388927488,
+    "error": null
+  },
+  {
+    "model": "MoritzLaurer/deberta-v3-large-zeroshot-v2.0",
+    "model_alias": "deberta_zeroshot",
+    "model_revision": "cf44676c28ba7312e5c5f8f8d2c22b3e0c9cdae2",
+    "device": "NVIDIA GeForce RTX 4050 Laptop GPU",
+    "dtype": "torch.float16",
+    "samples": 1,
+    "successful": 1,
+    "failed": 0,
+    "accuracy": 1.0,
+    "macro_f1": 0.3333333333333333,
+    "balanced_accuracy": 0.3333333333333333,
+    "per_class": {
+      "negative": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "support": 0
+      },
+      "neutral": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "support": 0
+      },
+      "positive": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1
+      }
+    },
+    "confusion_matrix": {
+      "negative": {
+        "negative": 0,
+        "neutral": 0,
+        "positive": 0,
+        "invalid": 0
+      },
+      "neutral": {
+        "negative": 0,
+        "neutral": 0,
+        "positive": 0,
+        "invalid": 0
+      },
+      "positive": {
+        "negative": 0,
+        "neutral": 0,
+        "positive": 1,
+        "invalid": 0
+      }
+    },
+    "load_seconds": 2.2827275929998905,
+    "warmup_seconds": 0.04721752000000379,
+    "inference_total_seconds": 0.04758394899999985,
+    "average_inference_ms": 47.58394899999985,
+    "model_run_wall_seconds": 2.3776505270000143,
+    "peak_gpu_memory_bytes": 885209088,
+    "error": null
+  },
+  {
+    "model": "facebook/bart-large-mnli",
+    "model_alias": "bart_mnli",
+    "model_revision": "d7645e127eaf1aefc7862fd59a17a5aa8558b8ce",
+    "device": "NVIDIA GeForce RTX 4050 Laptop GPU",
+    "dtype": "torch.float16",
+    "samples": 1,
+    "successful": 1,
+    "failed": 0,
+    "accuracy": 1.0,
+    "macro_f1": 0.3333333333333333,
+    "balanced_accuracy": 0.3333333333333333,
+    "per_class": {
+      "negative": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "support": 0
+      },
+      "neutral": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "support": 0
+      },
+      "positive": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1
+      }
+    },
+    "confusion_matrix": {
+      "negative": {
+        "negative": 0,
+        "neutral": 0,
+        "positive": 0,
+        "invalid": 0
+      },
+      "neutral": {
+        "negative": 0,
+        "neutral": 0,
+        "positive": 0,
+        "invalid": 0
+      },
+      "positive": {
+        "negative": 0,
+        "neutral": 0,
+        "positive": 1,
+        "invalid": 0
+      }
+    },
+    "load_seconds": 2.2382326879999255,
+    "warmup_seconds": 0.05461870699991778,
+    "inference_total_seconds": 0.026911997999832238,
+    "average_inference_ms": 26.911997999832238,
+    "model_run_wall_seconds": 2.319903707999856,
+    "peak_gpu_memory_bytes": 824429056,
+    "error": null
+  }
+]

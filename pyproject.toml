@@ -1,24 +1,25 @@
 [project]
 name = "llm-dl-models-benchmarkings"
 version = "0.1.0"
-description = "Add your description here"
+description = "Financial sentiment benchmarking of OpenRouter LLMs and local classifiers"
 readme = "README.md"
 authors = [
     { name = "hrmiitm", email = "hrithik999999@gmail.com" }
 ]
 requires-python = ">=3.12"
 dependencies = [
-    "datasets>=5.1.0",
-    "protobuf>=7.36.2",
-    "python-dotenv>=1.2.4",
-    "requests>=2.34.2",
-    "sentencepiece>=0.2.2",
-    "torch>=2.14.1",
-    "transformers>=5.19.0",
+    "python-dotenv>=1.0,<2",
+    "requests>=2.32,<3",
 ]
 
-[project.scripts]
-llm-dl-models-benchmarkings = "llm_dl_models_benchmarkings:main"
+[project.optional-dependencies]
+dl = [
+    "torch>=2.6,<3",
+    "transformers>=4.48,<6",
+    "sentencepiece>=0.2,<1",
+    "protobuf>=4.25,<8",
+]
+data = ["huggingface-hub>=0.26,<3"]
 
 [build-system]
 requires = ["uv_build>=0.12.23,<0.13.0"]

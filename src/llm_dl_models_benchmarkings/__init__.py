@@ -1,2 +1,1 @@
-def main() -> None:
-    print("Hello from llm-dl-models-benchmarkings!")
+"""Financial sentiment benchmarks; run the CLI scripts documented in README.md."""

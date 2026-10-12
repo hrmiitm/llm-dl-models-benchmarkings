@@ -10,7 +10,7 @@ PREFIXES = ('llm_summary', 'llm_predictions', 'llm_api_calls', 'dl_summary', 'dl
 EXCLUDED = {'llm_smoke', 'llm-smoke', 'smoke', 'smoke-test', 'initial-run', 'decision_models', 'extended'}
 files = []
 for path in sorted(RESULTS.rglob('*')):
-    if not path.is_file() or set(path.relative_to(RESULTS).parts[:-1]) & EXCLUDED:
+    if not path.is_file() or any(part in EXCLUDED or 'smoke' in part.lower() for part in path.relative_to(RESULTS).parts[:-1]):
         continue
     if path.suffix not in {'.json', '.jsonl'} or not any(path.stem == stem or path.stem.startswith(stem + '_') for stem in PREFIXES):
         continue

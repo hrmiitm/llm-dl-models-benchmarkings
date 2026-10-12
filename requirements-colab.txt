@@ -1,0 +1,5 @@
+# Colab already includes CUDA-enabled torch; keep it when it satisfies this range.
+torch>=2.6,<3
+transformers>=4.48,<6
+sentencepiece>=0.2,<1
+protobuf>=4.25,<8

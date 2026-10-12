@@ -1,4 +1,6 @@
 data/*
+!data/test_30.csv
+!data/answer_key_30.csv
 # Created by https://www.toptal.com/developers/gitignore/api/linux,macos,windows,python,node
 # Edit at https://www.toptal.com/developers/gitignore?templates=linux,macos,windows,python,node
 

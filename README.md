@@ -59,6 +59,19 @@ Other reasoning levels use their own suffix. Repeating the same run overwrites
 its files. Smoke results go to `results/llm_smoke_pinned/`. Missing cost stays null;
 inference time includes the HTTP request and response processing.
 
+Repair only failed examples in saved full-test runs:
+
+```bash
+uv run python src/temp_failed_rerun.py --dry-run
+uv run python src/temp_failed_rerun.py
+uv run python scripts/build_results_manifest.py
+```
+
+Successful predictions stay unchanged. Repairs preserve the original provider
+pin, temperature and reasoning, replace recovered rows, and rebuild summaries.
+API logs retain all attempts; displayed cost/latency cover retained predictions,
+while earlier attempts' unknown charges are recorded separately.
+
 ## Run DL models on Colab T4
 
 Select **Runtime → Change runtime type → T4 GPU**, then run:
@@ -73,7 +86,7 @@ import sys
 !uv run --no-project {sys.executable} src/run_dl_models.py --device cuda --require-t4 --output-dir /content/colab_dl_new --archive /content/colab_dl_new.zip
 ```
 
-Colab uses its existing Python runtime and compatible CUDA PyTorch. Nine models
+Colab uses its existing Python runtime and compatible CUDA PyTorch. Thirteen models
 cover FinBERT, RoBERTa, DistilBERT, DeBERTa and BART; list them with `--list-models`.
 Models run one at a time in float16 on CUDA. GPU-synchronized inference timing
 includes tokenization and postprocessing; model loading and three warmup passes
@@ -115,12 +128,19 @@ uv run python -m http.server 8000 --bind 127.0.0.1
 ```
 
 Open **http://127.0.0.1:8000/**. Rebuild the manifest after adding results, then
-click **Refresh data**. Smoke runs are excluded. Dashboard cost estimates are
-separate from reported API charges.
+click **Refresh results**. The two graphs compare total cost vs full-test accuracy
+(DL + LLM) and reported confidence vs accuracy (LLM only). Failed or incomplete
+configurations are excluded. Choose log/linear cost, model, reasoning level,
+Azure/GCP/custom DL rate, and inference-only or model wall time.
+
+The page reads original JSON, JSONL and CSV files from `results/`; scores are not
+embedded in the HTML. [Adding another result format](docs/result-formats.md)
+explains field adapters and how to declare a summary's test set. Cloud rate
+sources and verification date are saved in `results/cloud_rates.json`.
 
 ## Checks
 
 ```bash
 uv run python -m unittest discover -s tests -p 'test_*.py'
-node --test tests/benchmark-data.test.mjs
+node --test tests/dashboard-data.test.mjs
 ```

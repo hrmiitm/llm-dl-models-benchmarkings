@@ -305,11 +305,11 @@
     "temperature": null,
     "reasoning_effort": "low",
     "samples": 30,
-    "successful": 29,
-    "failed": 1,
-    "accuracy": 0.9666666666666667,
-    "macro_f1": 0.9824561403508771,
-    "balanced_accuracy": 0.9666666666666667,
+    "successful": 30,
+    "failed": 0,
+    "accuracy": 1.0,
+    "macro_f1": 1.0,
+    "balanced_accuracy": 1.0,
     "per_class": {
       "negative": {
         "precision": 1.0,
@@ -325,8 +325,8 @@
       },
       "positive": {
         "precision": 1.0,
-        "recall": 0.9,
-        "f1": 0.9473684210526315,
+        "recall": 1.0,
+        "f1": 1.0,
         "support": 10
       }
     },
@@ -346,18 +346,24 @@
       "positive": {
         "negative": 0,
         "neutral": 0,
-        "positive": 9,
-        "invalid": 1
+        "positive": 10,
+        "invalid": 0
       }
     },
-    "api_cost_usd": null,
-    "provider": null,
-    "provider_verified": false,
-    "mean_confidence": null,
-    "confidence_samples": 29,
-    "total_inference_seconds": 190.9898844169993,
-    "mean_latency_ms": 6366.329480566643,
-    "model_run_wall_seconds": 190.99390991200016
+    "api_cost_usd": 0.005409,
+    "provider": "Google",
+    "provider_verified": true,
+    "mean_confidence": 0.9662799999999999,
+    "confidence_samples": 30,
+    "total_inference_seconds": 73.67426438599978,
+    "mean_latency_ms": 2455.808812866659,
+    "model_run_wall_seconds": 193.77830874000028,
+    "cost_basis": "retained_prediction_attempts",
+    "all_attempts_api_cost_usd": null,
+    "api_attempts": 31,
+    "unpriced_api_attempts": 1,
+    "repair_inference_seconds": 2.7843988280001213,
+    "repaired_samples": 1
   },
   {
     "model": "google/gemma-4-26b-a4b-it",

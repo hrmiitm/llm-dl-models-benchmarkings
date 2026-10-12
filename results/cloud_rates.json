@@ -1,0 +1,65 @@
+{
+  "checked_on": "2026-10-13",
+  "currency": "USD",
+  "presets": [
+    {
+      "id": "azure-t4",
+      "title": "Azure \u00b7 T4 VM \u00b7 $0.526/h",
+      "hourly_usd": 0.526,
+      "gpu_match": "T4",
+      "scope": "Full Linux pay-as-you-go VM: Standard_NC4as_T4_v3, East US, 4 vCPUs, 28 GiB RAM, one 16 GB T4",
+      "notes": "Projected cost using observed Colab Tesla T4 inference time, not timing measured on this cloud VM. Excludes model download/loading, warmup, idle time, storage, network, taxes, and minimum billing increments. Azure Retail Prices API Consumption record; Linux product excludes Windows, Spot and Low Priority. Meter b04b4869-b6a3-527b-aec2-650a6fb07224.",
+      "sources": [
+        {
+          "title": "Azure retail pricing API (filtered current records)",
+          "url": "https://prices.azure.com/api/retail/prices?%24filter=armRegionName+eq+%27eastus%27+and+armSkuName+eq+%27Standard_NC4as_T4_v3%27+and+priceType+eq+%27Consumption%27"
+        },
+        {
+          "title": "Azure NCasT4_v3 specifications",
+          "url": "https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/gpu-accelerated/ncast4v3-series"
+        }
+      ]
+    },
+    {
+      "id": "gcp-t4-vm",
+      "title": "GCP \u00b7 N1 + T4 VM \u00b7 $0.539999/h",
+      "hourly_usd": 0.539999,
+      "gpu_match": "T4",
+      "scope": "Full on-demand VM compute: n1-standard-4 (4 vCPUs, 15 GiB RAM) + one T4, Iowa/us-central1",
+      "notes": "Projected cost using observed Colab Tesla T4 inference time, not timing measured on this cloud VM. Excludes model download/loading, warmup, idle time, storage, network, taxes, and minimum billing increments. Official N1 base VM price $0.189999/h plus T4 accelerator $0.35/h; no sustained use or committed-use discounts.",
+      "sources": [
+        {
+          "title": "Google Cloud general-purpose VM pricing",
+          "url": "https://cloud.google.com/products/compute/pricing/general-purpose"
+        },
+        {
+          "title": "Google Cloud T4 GPU pricing",
+          "url": "https://cloud.google.com/products/compute/gpus-pricing?hl=en"
+        }
+      ]
+    },
+    {
+      "id": "gcp-t4-gpu-only",
+      "title": "GCP \u00b7 T4 GPU only \u00b7 $0.35/h",
+      "hourly_usd": 0.35,
+      "gpu_match": "T4",
+      "scope": "One on-demand T4 accelerator only, Iowa/us-central1; excludes host CPU and RAM",
+      "notes": "Projected cost using observed Colab Tesla T4 inference time, not timing measured on this cloud VM. Excludes model download/loading, warmup, idle time, storage, network, taxes, and minimum billing increments. GPU-only component, not a runnable standalone VM cost; use full VM preset for cloud compute comparison.",
+      "sources": [
+        {
+          "title": "Google Cloud T4 GPU pricing",
+          "url": "https://cloud.google.com/products/compute/gpus-pricing?hl=en"
+        }
+      ]
+    },
+    {
+      "id": "custom",
+      "title": "Custom hourly rate",
+      "hourly_usd": null,
+      "gpu_match": null,
+      "scope": "User-defined hourly compute scope",
+      "notes": "Projected cost using observed Colab Tesla T4 inference time, not timing measured on this cloud VM. Excludes model download/loading, warmup, idle time, storage, network, taxes, and minimum billing increments. User must choose a rate with a hardware scope consistent with the observed timings.",
+      "sources": []
+    }
+  ]
+}

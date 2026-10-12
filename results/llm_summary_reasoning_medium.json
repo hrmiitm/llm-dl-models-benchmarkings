@@ -233,16 +233,16 @@
     "temperature": 0,
     "reasoning_effort": "medium",
     "samples": 30,
-    "successful": 29,
-    "failed": 1,
-    "accuracy": 0.9666666666666667,
-    "macro_f1": 0.9824561403508771,
-    "balanced_accuracy": 0.9666666666666667,
+    "successful": 30,
+    "failed": 0,
+    "accuracy": 1.0,
+    "macro_f1": 1.0,
+    "balanced_accuracy": 1.0,
     "per_class": {
       "negative": {
         "precision": 1.0,
-        "recall": 0.9,
-        "f1": 0.9473684210526315,
+        "recall": 1.0,
+        "f1": 1.0,
         "support": 10
       },
       "neutral": {
@@ -260,10 +260,10 @@
     },
     "confusion_matrix": {
       "negative": {
-        "negative": 9,
+        "negative": 10,
         "neutral": 0,
         "positive": 0,
-        "invalid": 1
+        "invalid": 0
       },
       "neutral": {
         "negative": 0,
@@ -278,14 +278,20 @@
         "invalid": 0
       }
     },
-    "api_cost_usd": null,
-    "provider": null,
-    "provider_verified": false,
-    "mean_confidence": null,
-    "confidence_samples": 29,
-    "total_inference_seconds": 174.58166602700294,
-    "mean_latency_ms": 5819.388867566765,
-    "model_run_wall_seconds": 174.58639724900058
+    "api_cost_usd": 0.0121765,
+    "provider": "Google",
+    "provider_verified": true,
+    "mean_confidence": 0.9586666666666666,
+    "confidence_samples": 30,
+    "total_inference_seconds": 56.08499789700181,
+    "mean_latency_ms": 1869.4999299000604,
+    "model_run_wall_seconds": 176.19057860199973,
+    "cost_basis": "retained_prediction_attempts",
+    "all_attempts_api_cost_usd": null,
+    "api_attempts": 31,
+    "unpriced_api_attempts": 1,
+    "repair_inference_seconds": 1.6041813529991487,
+    "repaired_samples": 1
   },
   {
     "model": "google/gemini-3.8-flash",
@@ -305,11 +311,11 @@
     "temperature": null,
     "reasoning_effort": "medium",
     "samples": 30,
-    "successful": 29,
-    "failed": 1,
-    "accuracy": 0.9666666666666667,
-    "macro_f1": 0.9824561403508771,
-    "balanced_accuracy": 0.9666666666666667,
+    "successful": 30,
+    "failed": 0,
+    "accuracy": 1.0,
+    "macro_f1": 1.0,
+    "balanced_accuracy": 1.0,
     "per_class": {
       "negative": {
         "precision": 1.0,
@@ -319,8 +325,8 @@
       },
       "neutral": {
         "precision": 1.0,
-        "recall": 0.9,
-        "f1": 0.9473684210526315,
+        "recall": 1.0,
+        "f1": 1.0,
         "support": 10
       },
       "positive": {
@@ -339,9 +345,9 @@
       },
       "neutral": {
         "negative": 0,
-        "neutral": 9,
+        "neutral": 10,
         "positive": 0,
-        "invalid": 1
+        "invalid": 0
       },
       "positive": {
         "negative": 0,
@@ -350,14 +356,20 @@
         "invalid": 0
       }
     },
-    "api_cost_usd": null,
-    "provider": null,
-    "provider_verified": false,
-    "mean_confidence": null,
-    "confidence_samples": 29,
-    "total_inference_seconds": 135.1675576689977,
-    "mean_latency_ms": 4505.585255633256,
-    "model_run_wall_seconds": 135.17120473399973
+    "api_cost_usd": 0.016854,
+    "provider": "Google",
+    "provider_verified": true,
+    "mean_confidence": 0.969,
+    "confidence_samples": 30,
+    "total_inference_seconds": 124.10396860499714,
+    "mean_latency_ms": 4136.798953499904,
+    "model_run_wall_seconds": 137.2148494719995,
+    "cost_basis": "retained_prediction_attempts",
+    "all_attempts_api_cost_usd": null,
+    "api_attempts": 31,
+    "unpriced_api_attempts": 1,
+    "repair_inference_seconds": 2.0436447379997844,
+    "repaired_samples": 1
   },
   {
     "model": "google/gemma-4-26b-a4b-it",

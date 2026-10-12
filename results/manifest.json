@@ -1,0 +1,42 @@
+{
+  "schema_version": 2,
+  "ground_truth": "data/answer_key_30.csv",
+  "files": [
+    {
+      "path": "results/colab_dl_new/dl_evaluation.json",
+      "modified_at": "2026-10-12T20:56:40.717251+00:00"
+    },
+    {
+      "path": "results/colab_dl_new/dl_predictions.jsonl",
+      "modified_at": "2026-10-12T20:56:40.717652+00:00"
+    },
+    {
+      "path": "results/colab_dl_new/dl_summary.json",
+      "modified_at": "2026-10-12T20:56:40.718648+00:00"
+    },
+    {
+      "path": "results/llm_predictions_reasoning_high.jsonl",
+      "modified_at": "2026-10-12T21:31:51.301739+00:00"
+    },
+    {
+      "path": "results/llm_predictions_reasoning_low.jsonl",
+      "modified_at": "2026-10-12T21:53:56.602117+00:00"
+    },
+    {
+      "path": "results/llm_predictions_reasoning_medium.jsonl",
+      "modified_at": "2026-10-12T21:54:00.262474+00:00"
+    },
+    {
+      "path": "results/llm_summary_reasoning_high.json",
+      "modified_at": "2026-10-12T21:31:51.302564+00:00"
+    },
+    {
+      "path": "results/llm_summary_reasoning_low.json",
+      "modified_at": "2026-10-12T21:53:56.603219+00:00"
+    },
+    {
+      "path": "results/llm_summary_reasoning_medium.json",
+      "modified_at": "2026-10-12T21:54:00.263788+00:00"
+    }
+  ]
+}

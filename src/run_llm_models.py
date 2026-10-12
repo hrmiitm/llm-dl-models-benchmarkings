@@ -30,6 +30,92 @@ def parse_prediction(raw):
     return answer["label"], float(confidence)
 
 
+def predict_one(session, model, row, reasoning, endpoint, key, meta, timeout=120):
+    """Make one pinned request; also used by the failed-case repair script."""
+    pin = meta["provider_routing"]
+    result, data, tick = (
+        meta | row | dict(predicted_label=None, confidence=None, confidence_source="model_reported", error=None),
+        {},
+        time.perf_counter(),
+    )
+    payload = {
+        "model": model["model"],
+        "provider": pin,
+        "max_tokens": 2048,
+        "response_format": {
+            "type": "json_schema",
+            "json_schema": {
+                "name": "sentiment",
+                "strict": True,
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "label": {"type": "string", "enum": list(LABELS)},
+                        "confidence": {"type": "number"},
+                    },
+                    "required": ["label", "confidence"],
+                    "additionalProperties": False,
+                },
+            },
+        },
+        "messages": [
+            {
+                "role": "user",
+                "content": "Classify financial sentiment from an investor's "
+                "perspective. Return only JSON containing label (positive, negative "
+                "or neutral) and confidence (a number from 0 to 1 estimating "
+                "the probability that your chosen label is correct). Do not explain. "
+                "Sentence: " + row["sentence"],
+            }
+        ],
+    }
+    if model.get("temperature") is not None:
+        payload["temperature"] = model["temperature"]
+    if model.get("reasoning"):
+        payload["reasoning"] = (
+            {"enabled": False}
+            if reasoning == "none"
+            else {"effort": reasoning}
+        )
+    try:
+        response = session.post(endpoint, json=payload, timeout=timeout)
+        data = response.json()
+        data = data if isinstance(data, dict) else {}
+        response.raise_for_status()
+        if data.get("error") or data.get("provider") != model["provider_name"]:
+            raise ValueError(data.get("error") or "Provider mismatch")
+        raw = data["choices"][0]["message"]["content"] or ""
+        result["raw_output"] = raw
+        label, confidence = parse_prediction(raw)
+        result.update(predicted_label=label, confidence=confidence)
+    except (
+        requests.RequestException,
+        ValueError,
+        KeyError,
+        IndexError,
+        TypeError,
+    ) as exc:
+        result["error"] = str(exc).replace(key, "[REDACTED]")[:1000]
+
+    usage = data.get("usage") if isinstance(data.get("usage"), dict) else {}
+    cost = finite_nonnegative(usage.get("cost"))
+    usage = usage | {"cost": cost}
+    result.update(
+        inference_seconds=time.perf_counter() - tick,
+        usage=usage,
+        api_cost_usd=cost,
+        cost_source="usage.cost" if cost is not None else None,
+        provider=data.get("provider"),
+        provider_verified=data.get("provider") == model["provider_name"],
+        generation_id=data.get("id"),
+        **{
+            k: usage.get(k)
+            for k in ["prompt_tokens", "completion_tokens", "total_tokens"]
+        },
+    )
+    return result
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Pinned OpenRouter sentiment benchmark")
     parser.add_argument(
@@ -110,86 +196,7 @@ def main(argv=None):
             )
             records, started = [], time.perf_counter()
             for row in rows:
-                result, data, tick = (
-                    meta | row | dict(predicted_label=None, confidence=None, confidence_source="model_reported", error=None),
-                    {},
-                    time.perf_counter(),
-                )
-                payload = {
-                    "model": model["model"],
-                    "provider": pin,
-                    "max_tokens": 2048,
-                    "response_format": {
-                        "type": "json_schema",
-                        "json_schema": {
-                            "name": "sentiment",
-                            "strict": True,
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "label": {"type": "string", "enum": list(LABELS)},
-                                    "confidence": {"type": "number"},
-                                },
-                                "required": ["label", "confidence"],
-                                "additionalProperties": False,
-                            },
-                        },
-                    },
-                    "messages": [
-                        {
-                            "role": "user",
-                            "content": "Classify financial sentiment from an investor's "
-                            "perspective. Return only JSON containing label (positive, negative "
-                            "or neutral) and confidence (a number from 0 to 1 estimating "
-                            "the probability that your chosen label is correct). Do not explain. "
-                            "Sentence: " + row["sentence"],
-                        }
-                    ],
-                }
-                if model.get("temperature") is not None:
-                    payload["temperature"] = model["temperature"]
-                if model.get("reasoning"):
-                    payload["reasoning"] = (
-                        {"enabled": False}
-                        if args.reasoning == "none"
-                        else {"effort": args.reasoning}
-                    )
-                try:
-                    response = session.post(endpoint, json=payload, timeout=120)
-                    data = response.json()
-                    data = data if isinstance(data, dict) else {}
-                    response.raise_for_status()
-                    if data.get("error") or data.get("provider") != model["provider_name"]:
-                        raise ValueError(data.get("error") or "Provider mismatch")
-                    raw = data["choices"][0]["message"]["content"] or ""
-                    result["raw_output"] = raw
-                    label, confidence = parse_prediction(raw)
-                    result.update(predicted_label=label, confidence=confidence)
-                except (
-                    requests.RequestException,
-                    ValueError,
-                    KeyError,
-                    IndexError,
-                    TypeError,
-                ) as exc:
-                    result["error"] = str(exc).replace(key, "[REDACTED]")[:1000]
-
-                usage = data.get("usage") if isinstance(data.get("usage"), dict) else {}
-                cost = finite_nonnegative(usage.get("cost"))
-                usage = usage | {"cost": cost}
-                result.update(
-                    inference_seconds=time.perf_counter() - tick,
-                    usage=usage,
-                    api_cost_usd=cost,
-                    cost_source="usage.cost" if cost is not None else None,
-                    provider=data.get("provider"),
-                    provider_verified=data.get("provider") == model["provider_name"],
-                    generation_id=data.get("id"),
-                    **{
-                        k: usage.get(k)
-                        for k in ["prompt_tokens", "completion_tokens", "total_tokens"]
-                    },
-                )
+                result = predict_one(session, model, row, args.reasoning, endpoint, key, meta)
                 records.append(result)
                 write_record(predictions, result)
                 write_record(calls, result)

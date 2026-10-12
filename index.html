@@ -1,48 +1,123 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="color-scheme" content="light dark">
-  <meta name="description" content="Explore financial sentiment benchmark accuracy, reasoning effort, latency and estimated cost. All scores are calculated from saved result files.">
-  <title>Sentiment / Compare — DL & LLM benchmark</title>
-  <script>try{if(localStorage.getItem('sentiment-theme')==='dark')document.documentElement.dataset.theme='dark'}catch{}</script>
-  <link rel="stylesheet" href="assets/dashboard.css">
-  <script type="module" src="assets/dashboard.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="Compare sentiment benchmark accuracy, inference costs, and confidence using the original saved LLM and deep learning results.">
+  <title>Sentiment benchmark · Results explorer</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23226050'/%3E%3Cpath d='M7 24V8M7 24h19M11 20l6-7 8-4' fill='none' stroke='%23f8f7f1' stroke-width='2'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="assets/style.css">
+  <script type="module" src="assets/app.js"></script>
 </head>
 <body>
-<a class="skip" href="#comparison">Skip to comparison</a>
-<nav class="nav"><a class="brand" href="#top">SENTIMENT <span>/</span> COMPARE</a><div class="nav-links"><a href="#comparison">01 <span>Trade-offs</span></a><a href="#reasoning">02 <span>Reasoning</span></a><a href="#records">03 <span>Results</span></a></div><button id="theme" class="quiet" type="button">Dark mode</button></nav>
-<main id="top">
-  <header class="hero"><div><p class="eyebrow">FINANCIAL PHRASEBANK / MODEL BENCHMARK</p><h1>Financial sentiment,<br><em>measured.</em></h1><p class="dek">Compare deep learning and language models on the same sentences. Follow the trade-off between quality, speed and cost as reasoning effort changes.</p><p class="hero-note">Calculated from your saved results. No model API calls, no embedded benchmark scores.</p></div><aside class="hero-aside"><span class="live"><i></i> LIVE FROM RESULTS/</span><div class="dataset-stats" id="dataset-stats"><span>Reading the benchmark…</span></div><a href="#methods">How the comparison works ↗</a></aside></header>
-  <div class="load-bar"><p id="load-status" role="status">Loading source files…</p><button id="refresh" type="button" class="quiet">↻ Refresh data</button></div>
-  <div id="error" class="notice" role="alert" hidden></div>
-  <div id="content" hidden>
-    <section class="toolbar" aria-label="Benchmark filters">
-      <label class="control">Compare models<select id="model-filter"><option value="all">All models · DL + LLM</option></select></label>
-      <fieldset><legend>Reasoning levels</legend><label><input type="checkbox" name="effort" value="low" checked> ● Low</label><label><input type="checkbox" name="effort" value="medium" checked> ◆ Medium</label><label><input type="checkbox" name="effort" value="high" checked> ■ High</label></fieldset>
-      <div class="view-switch" role="group" aria-label="Comparison view"><button id="view-levels" type="button" aria-pressed="true">Reasoning levels</button><button id="view-overall" type="button" aria-pressed="false">Overall models</button></div>
-    </section>
-    <p class="scope" id="scope-note"></p>
-    <div class="headlines" id="headlines" aria-label="Findings from the selected results"></div>
-    <details id="notices" class="notice" hidden><summary>Data coverage & comparison notes</summary><ul id="notice-list"></ul></details>
-    <section id="comparison" class="chapter">
-      <div class="section-heading"><span class="section-number">01</span><h2 id="chart-heading">Cost vs Accuracy</h2><span class="direction-pill" id="direction">↖ Top-left is best</span></div>
-      <p class="intro" id="chart-intro">Compare model quality with the cost of classifying the same sentences.</p>
-      <div class="pricing-panel">
-        <div class="pricing-controls"><label class="control">DL compute rate<select id="dl-rate"><option value="saved">Saved JSON rate</option><option value="custom">Custom hourly rate</option></select></label><label class="control" id="custom-control" hidden>Custom USD / hour<input id="custom-rate" type="number" min="0" step="any" placeholder="USD / hour" inputmode="decimal"></label><label class="control">LLM cost source<select id="cost-mode"><option value="estimate">Saved charges, else token estimate</option><option value="saved">Saved API charges only</option></select></label></div>
-        <p id="rate-note"></p><p class="pricing-explainer">DL cost = recorded inference seconds ÷ 3,600 × hourly rate. These are Colab timing-based rental scenarios, excluding loading, warmup and idle time. LLM estimates include thinking/output tokens at reference rates; they are not Foundry invoices.</p>
+  <a class="skip-link" href="#charts">Skip to charts</a>
+  <div class="page-shell">
+    <header class="site-header">
+      <a class="wordmark" href="#">SENTIMENT / BENCHMARK</a>
+      <nav aria-label="Page navigation">
+        <a href="#charts">Charts</a>
+        <a href="#results">Results</a>
+        <a href="#method">Method</a>
+      </nav>
+    </header>
+    <main>
+      <section class="intro" aria-labelledby="page-title">
+        <p class="eyebrow">SAVED RESULTS · ONE SHARED TEST SET</p>
+        <h1 id="page-title">Accuracy has a cost.<br><span>Compare both.</span></h1>
+        <div class="intro-bottom">
+          <p class="lede">Explore LLM and deep learning sentiment models together, then see how LLM confidence compares with observed accuracy.</p>
+          <button id="refresh" class="button secondary" type="button">Refresh results <span aria-hidden="true">↻</span></button>
+        </div>
+        <p id="load-status" class="load-status" role="status" aria-live="polite">Loading saved benchmark results…</p>
+        <div id="error" class="error-panel" role="alert" hidden></div>
+      </section>
+      <noscript><p class="error-panel">Enable JavaScript to explore the saved results and interactive graphs.</p></noscript>
+      <div id="content" hidden>
+        <div id="stats" class="stats" aria-label="Benchmark overview"></div>
+        <div id="summary" class="summary-panel"></div>
+        <div id="charts">
+          <section class="chart-section" aria-labelledby="cost-title">
+            <div class="section-heading">
+              <span class="section-number" aria-hidden="true">01</span>
+              <h2 id="cost-title">Cost vs Accuracy</h2>
+              <span class="direction-pill">↖ Top-left is best</span>
+            </div>
+            <p class="section-caption">Compare total inference cost and accuracy across the complete test set. <strong>Left = cheaper. Up = more accurate.</strong> Each model has a distinct color; lines connect adjacent reasoning levels.</p>
+            <div class="rate-panel">
+              <div class="rate-heading"><h3>DL compute rate</h3><span class="quiet-badge">Cloud cost scenario</span></div>
+              <div class="rate-controls">
+                <label class="control rate-select">Provider / instance rate<select id="dl-rate" aria-describedby="rate-note rate-sources"></select></label>
+                <label class="control custom-rate">Custom rate · USD / hour<input id="custom-rate" type="number" min="0" step="any" placeholder="0.00" disabled></label>
+                <label class="control">Timing to price<select id="cost-basis"><option value="inference">Inference only</option><option value="wall">Load + warmup + inference</option></select></label>
+              </div>
+              <div id="rate-note" class="rate-note"></div>
+              <div id="rate-sources" class="rate-sources"></div>
+              <p class="rate-explainer">DL prices apply the selected hourly rate to recorded DL timing. They are estimates, not cloud invoices. Changing the rate changes DL cost only; recorded LLM API charges stay fixed.</p>
+            </div>
+            <div class="chart-controls" aria-label="Cost chart options">
+              <label class="control">Models<select id="cost-model"></select></label>
+              <label class="control">Reasoning<select id="cost-reasoning"></select></label>
+              <label class="control">Cost axis<select id="cost-scale"><option value="log" selected>Log · compare cost ratios</option><option value="linear">Linear · compare dollar amounts</option></select></label>
+              <label class="control">Accuracy axis<select id="accuracy-range"><option value="full" selected>Full · 0–100%</option><option value="focus">Focus · observed range</option><option value="top">Top · 70–100%</option></select></label>
+              <label class="checkbox-control"><input id="cost-labels" type="checkbox" checked> Model labels</label>
+            </div>
+            <p class="shape-key"><span>● Low</span><span>◆ Medium</span><span>■ High</span><span>▲ DL</span><span class="muted">model = color</span></p>
+            <div class="chart-card">
+              <div id="cost-chart" class="chart-container" aria-label="Cost versus accuracy graph"></div>
+              <div id="cost-legend" class="chart-legend" aria-label="Cost graph legend"></div>
+            </div>
+            <div id="cost-detail" class="detail-panel" aria-live="polite">Hover, tap, or keyboard-focus a point for its accuracy, cost, and run details.</div>
+            <div id="cost-note" class="chart-note"></div>
+          </section>
+          <section class="chart-section" aria-labelledby="confidence-title">
+            <div class="section-heading">
+              <span class="section-number" aria-hidden="true">02</span>
+              <h2 id="confidence-title">Mean Confidence vs Accuracy</h2>
+              <span class="direction-pill neutral-pill">LLM confidence</span>
+            </div>
+            <p class="section-caption">Each point compares one LLM run’s mean reported confidence with its accuracy across the same complete test set. The full view uses 0–100% on both axes. On the dashed diagonal, confidence matches accuracy. <strong>Bottom-right = overconfident. Top-left = underconfident.</strong></p>
+            <div class="chart-controls" aria-label="Confidence chart options">
+              <label class="control">Models<select id="confidence-model"></select></label>
+              <label class="control">Reasoning<select id="confidence-reasoning"></select></label>
+              <label class="control">Axis range<select id="confidence-range"><option value="full">Full · 0–100%</option><option value="focus">Detail · 80–100%</option></select></label>
+              <label class="checkbox-control"><input id="confidence-labels" type="checkbox" checked> Model labels</label>
+            </div>
+            <p class="shape-key"><span>● Low</span><span>◆ Medium</span><span>■ High</span><span class="muted">model = color</span></p>
+            <div class="chart-card">
+              <div id="confidence-chart" class="chart-container" aria-label="Mean confidence versus accuracy graph"></div>
+              <div id="confidence-legend" class="chart-legend" aria-label="Confidence graph legend"></div>
+            </div>
+            <div id="confidence-detail" class="detail-panel" aria-live="polite">Select a model-level point to see its confidence and accuracy.</div>
+            <div id="confidence-note" class="chart-note"></div>
+            <p class="chart-note">These aggregate means describe confidence and accuracy. They do not establish formal probability calibration or guarantee that an individual answer is correct.</p>
+          </section>
+        </div>
+        <section id="results" class="results-section" aria-labelledby="results-title">
+          <div class="section-heading compact-heading"><span class="section-number" aria-hidden="true">03</span><h2 id="results-title">Every run, in detail</h2></div>
+          <div class="table-toolbar">
+            <label class="control">Show runs<select id="table-filter"><option value="all" selected>All runs</option><option value="complete">Complete runs</option><option value="excluded">Excluded runs</option></select></label>
+            <button id="export" class="button secondary" type="button">Export comparison CSV <span aria-hidden="true">↓</span></button>
+          </div>
+          <div class="table-wrap" tabindex="0" role="region" aria-label="Benchmark results table">
+            <table><thead><tr><th scope="col">Model</th><th scope="col">Family / Reasoning</th><th scope="col">Accuracy</th><th scope="col">Confidence</th><th scope="col">Cost</th><th scope="col">Mean latency</th><th scope="col">Coverage</th><th scope="col">Status</th></tr></thead><tbody id="result-table"></tbody></table>
+          </div>
+          <details id="coverage" class="coverage-panel"><summary>Coverage and excluded runs</summary><p>Only complete runs matching the test data are eligible for the graphs. Missing, failed, partial, or incompatible runs are shown here for review.</p><ul id="excluded-list"></ul></details>
+        </section>
+        <section id="method" class="method-section" aria-labelledby="method-title">
+          <p class="eyebrow">HOW TO READ THIS COMPARISON</p>
+          <h2 id="method-title">Measured results. Visible assumptions.</h2>
+          <div class="method-grid">
+            <div><h3>One test set</h3><p>Accuracy is the fraction of correct sentiment labels across the complete matching test set. Partial runs and runs with failed examples are excluded from the plots, so the comparison keeps the same denominator.</p></div>
+            <div><h3>Two kinds of cost</h3><p>LLM cost sums the retained prediction attempts. Earlier failed attempts stay in API logs and may have unknown charges. DL cost estimates use measured runtime and your chosen hourly compute rate. The timing basis and provider rate are explicit controls.</p></div>
+            <div><h3>Original files</h3><p>The explorer reads saved files in <code>results/</code>. It does not send prompts or make model API requests. The sources below identify the inputs and pricing references.</p></div>
+          </div>
+          <h3 class="sources-title">Data and pricing sources</h3>
+          <ul id="sources" class="sources-list"></ul>
+        </section>
       </div>
-      <div class="chart-controls"><label class="control">Horizontal axis<select id="x-metric"><option value="cost">Total cost / run, USD</option><option value="mean_latency">Mean latency, seconds</option><option value="total_inference">Total recorded inference, seconds</option><option value="wall_seconds">Model run wall time, seconds</option></select></label><label class="control">Horizontal scale<select id="x-scale"><option value="log">Log · compare ratios</option><option value="linear">Linear · compare differences</option></select></label><label class="control">Vertical metric<select id="y-metric"><option value="accuracy">Accuracy</option><option value="macro_f1">Macro F1</option><option value="balanced_accuracy">Balanced accuracy</option><option value="precision">Macro precision</option><option value="recall">Macro recall</option><option value="error_rate">Error rate</option><option value="success_rate">Successful answer rate</option><option value="confidence">Mean confidence (when saved)</option></select></label><label class="control">Vertical scale<select id="y-scale"><option value="linear">Linear · 0–100%</option><option value="log">Log · positive values only</option></select></label></div>
-      <div class="plot-options"><label><input id="complete-only" type="checkbox" checked> Matched complete runs</label><label><input id="point-labels" type="checkbox" checked> Point labels</label><span id="symbols">● Low &nbsp; ◆ Medium &nbsp; ■ High &nbsp; ▲ DL · model = color</span></div>
-      <figure><div class="plot"><div id="chart" aria-label="Interactive benchmark scatter chart"></div><div id="legend" class="legend" aria-label="Toggle model visibility"></div></div><p id="point-detail" class="point-detail" aria-live="polite">Hover, tap or keyboard-focus a point to inspect its score, timing and cost source.</p><figcaption id="chart-caption"></figcaption></figure>
-      <div class="reading"><span>READ THE TRADE-OFF</span><p id="reading"></p></div>
-    </section>
-    <section id="reasoning" class="chapter"><div class="section-heading"><span class="section-number">02</span><h2>Reasoning, side by side.</h2></div><p class="intro">One model, the same sentences, different effort. Quality is recalculated from individual predictions; timing comes from the saved run.</p><div id="reasoning-cards" class="reasoning-cards"></div><p class="scope">These are descriptive comparisons on a small sample. Prompt text and token caps were not recorded in these result files, so the page does not isolate a causal effect of reasoning effort.</p></section>
-    <section id="records" class="chapter"><div class="section-heading"><span class="section-number">03</span><h2>Every model. Every run.</h2><button id="export" type="button" class="quiet">↓ Export this view</button></div><p class="intro">Inspect exact scores, failures, token usage and cost provenance. Click a column heading to sort.</p><div class="table-scroll" tabindex="0"><table><caption class="sr-only">Financial sentiment model results for the selected view</caption><thead><tr><th><button data-sort="name">Model ↕</button></th><th><button data-sort="effort">Level ↕</button></th><th><button data-sort="accuracy">Accuracy ↕</button></th><th><button data-sort="macro_f1">Macro F1 ↕</button></th><th><button data-sort="mean_latency">Mean latency ↕</button></th><th><button data-sort="cost">Cost / run ↕</button></th><th>Answers</th><th>Tokens</th><th>Source</th></tr></thead><tbody id="table-body"></tbody></table></div></section>
-    <section class="chapter breakdown"><div><p class="eyebrow">A CLOSER LOOK</p><h2>Where do mistakes happen?</h2><p class="intro">Rows are the true sentiment; columns are the model’s prediction. Missing and invalid responses stay visible.</p><label class="control">Inspect a configuration<select id="inspect"></select></label><p class="scope" id="matrix-note"></p></div><div id="confusion" class="confusion" aria-label="Sentiment confusion matrix"></div></section>
-    <details class="methods" id="methods"><summary>Methods, pricing and source files</summary><div class="method-grid"><div><h3>Scores from predictions</h3><p>Predictions are joined to the answer key by ID and checked against the sentence text. Accuracy counts missing or invalid answers as incorrect. Macro F1 averages negative, neutral and positive F1; balanced accuracy averages recall for classes present in the answer key.</p><p>Default plots require exactly one valid prediction for every sentence. Partial runs remain in the results table. DL confidence is a classification probability; the LLM files do not contain comparable confidence values. A full-set confidence mean requires a valid saved confidence for every sentence.</p></div><div><h3>What “overall” means</h3><p>Overall averages the selected available reasoning configurations within each LLM. Cost and timing are means for one same-size run, not the sum of three runs. It is not an ensemble, and repeated sentences are not new independent samples. DL keeps its single GPU configuration.</p><h3>Cost & timing</h3><p>Recorded API charges take precedence. When absent, reference estimates assume all input tokens are uncached and output = total tokens − input tokens, including thinking. If totals are unavailable, saved completion tokens are used. Missing prices or usage remain unknown, not zero. Estimates do not include unreported retry usage or proxy fees. Zero and negative values cannot be placed on a log axis.</p><p>DL measures synchronized GPU inference, excluding loading and warmup. API latency includes network/proxy overhead and any recorded retries. Hardware and execution environments differ.</p></div></div><div id="pricing-sources"></div><h3>Loaded benchmark sources</h3><ul id="source-list" class="source-list"></ul><p id="loaded-at" class="scope"></p><p class="scope">Small selected Financial PhraseBank sample; training-data overlap has not been audited. This is not a full-dataset benchmark. The page uses saved files only and never reads <code>.env</code>.</p></details>
-    <footer><span>SENTIMENT / COMPARE · SAVED RESULTS, LIVE ANALYSIS</span><a href="https://github.com/hrmiitm/llm-counting-benchmark/blob/main/reasoning.html">Design reference ↗</a></footer>
+    </main>
+    <footer><span>Sentiment benchmark / Results explorer</span><a href="#page-title">Back to top ↑</a></footer>
   </div>
-  <noscript>Enable JavaScript to calculate this dashboard from your saved result files.</noscript>
-</main>
-</body></html>
+</body>
+</html>

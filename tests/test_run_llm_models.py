@@ -14,105 +14,93 @@ from benchmark_common import evaluate, load_inputs
 from run_dl_models import predict
 
 
-def response(body, status=200, headers=None):
+def response(body, status=200):
     result = requests.Response()
     result.status_code = status
-    result._content = json.dumps(body).encode()
-    result.headers.update(headers or {})
+    result._content = json.dumps({'provider': 'OpenAI', **body}).encode()
     return result
 
 
 class RunnerTests(unittest.TestCase):
-    spec = {'model': 'openai/gpt-6-luna', 'reasoning': True, 'temperature': None}
-
-    def test_openrouter_payload_and_reported_usage(self):
+    def run_benchmark(self, responses, extra=()):
         session = Mock()
-        session.post.return_value = response({'id': 'gen-1', 'provider': 'OpenAI', 'model': self.spec['model'],
-            'choices': [{'message': {'content': 'positive'}, 'finish_reason': 'stop'}],
-            'usage': {'prompt_tokens': 20, 'completion_tokens': 4, 'total_tokens': 24, 'cost': 0.001,
-                      'completion_tokens_details': {'reasoning_tokens': 2}}})
-        attempts = []
-        result = runner.call_model(session, self.spec, 'https://openrouter.ai/api/v1/chat/completions', 'Sales increased.', 'high', attempts=attempts)
-        payload = session.post.call_args.kwargs['json']
-        self.assertNotIn('temperature', payload)
-        self.assertNotIn('reasoning_effort', payload)
-        self.assertEqual(payload['reasoning'], {'effort': 'high'})
-        self.assertNotIn('usage', payload)
-        self.assertEqual(result['predicted_label'], 'positive')
-        self.assertEqual(result['reasoning_tokens'], 2)
-        self.assertEqual(result['generation_id'], 'gen-1')
-        self.assertEqual(runner.cost_totals(attempts)['api_cost_usd'], 0.001)
-
-    def test_retry_cost_includes_failed_attempt(self):
-        session = Mock()
-        session.post.side_effect = [response({'error': 'overloaded', 'usage': {'cost': 0.002}}, 503, {'Retry-After': '4'}),
-            response({'choices': [{'message': {'content': 'negative'}}], 'usage': {'cost': 0.003}})]
-        attempts = []
-        with patch.object(runner.time, 'sleep') as sleep:
-            result = runner.call_model(session, self.spec, 'https://openrouter.ai/api/v1/chat/completions', 'text', attempts=attempts)
-        sleep.assert_called_once_with(4)
-        self.assertEqual(result['predicted_label'], 'negative')
-        self.assertEqual(runner.cost_totals(attempts)['api_cost_usd'], 0.005)
-        self.assertEqual(len(attempts), 2)
-
-    def test_unknown_and_zero_cost_are_distinct(self):
-        self.assertEqual(runner.reported_cost({'usage': {'cost': 0}}, {}), (0, 'usage.cost'))
-        self.assertEqual(runner.reported_cost({'usage': {'cost': float('nan')}}, {}), (None, None))
-        totals = runner.cost_totals([{'api_cost_usd': 0.1}, {'api_cost_usd': None}])
-        self.assertIsNone(totals['api_cost_usd'])
-        self.assertEqual(totals['known_api_cost_usd'], 0.1)
-        self.assertEqual(totals['api_calls_without_cost'], 1)
-        self.assertIsNone(runner.cost_totals([])['api_cost_usd'])
-
-    def test_network_failure_is_logged_as_unknown_cost(self):
-        session = Mock()
-        session.post.side_effect = requests.Timeout('sensitive details')
-        attempts = []
-        with self.assertRaisesRegex(RuntimeError, 'Timeout'):
-            runner.call_model(session, self.spec, 'https://openrouter.ai/api/v1/chat/completions', 'text', retries=0, attempts=attempts)
-        self.assertEqual(len(attempts), 1)
-        self.assertIsNone(attempts[0]['http_status'])
-        self.assertNotIn('sensitive', attempts[0]['error'])
-
-    def test_permanent_failure_logs_cost_without_retry(self):
-        session = Mock()
-        session.post.return_value = response({'error': {'message': 'Key limit exceeded'}}, 403)
-        attempts = []
-        with self.assertRaisesRegex(runner.ModelAccessError, 'Key limit exceeded'):
-            runner.call_model(session, self.spec, 'https://openrouter.ai/api/v1/chat/completions', 'text', attempts=attempts)
-        session.post.assert_called_once()
-        self.assertEqual(len(attempts), 1)
-
-    def test_ambiguous_or_missing_answers_are_not_predictions(self):
-        session = Mock()
-        session.post.return_value = response({'usage': {'cost': 0.1}})
-        with self.assertRaisesRegex(RuntimeError, 'no choices'):
-            runner.call_model(session, self.spec, 'https://openrouter.ai/api/v1/chat/completions', 'text')
-        self.assertIsNone(runner.label_from('positive or negative'))
-        self.assertEqual(runner.label_from('<think>negative</think>Positive.'), 'positive')
-
-    def test_connection_does_not_modify_direct_key(self):
-        with patch.dict(os.environ, {'OPENROUTER_API_KEY': 'test-key'}, clear=True):
-            provider, endpoint, auth = runner.connection('auto')
-        self.assertEqual(provider, 'openrouter')
-        self.assertEqual(auth, 'test-key')
-        self.assertEqual(endpoint, 'https://openrouter.ai/api/v1/chat/completions')
-
-    def test_model_rejection_skips_rows_and_exits_nonzero(self):
+        session.post.side_effect = responses
         with tempfile.TemporaryDirectory() as temp:
-            session = Mock()
-            session.post.return_value = response({'error': 'no access'}, 403)
-            with patch.object(runner, 'connection', return_value=('openrouter', 'https://openrouter.ai/api/v1/chat/completions', 'fake-token')), patch.object(runner.requests, 'Session') as factory:
+            with patch.dict(os.environ, {'OPENROUTER_API_KEY': 'fake-key'}), patch.object(runner.requests, 'Session') as factory:
                 factory.return_value.__enter__.return_value = session
-                code = runner.main(['--models', 'openai/gpt-6-luna', '--limit', '2', '--output-dir', temp])
-            records = [json.loads(x) for x in Path(temp, 'llm_predictions.jsonl').read_text().splitlines()]
-            summary = json.loads(Path(temp, 'llm_summary.json').read_text())[0]
-            self.assertEqual(code, 1)
-            session.post.assert_called_once()
-            self.assertTrue(records[1]['skipped'])
-            self.assertEqual(records[1]['api_calls'], 0)
-            self.assertEqual(summary['failed'], 2)
-            self.assertIsNone(summary['api_cost_usd'])
+                code = runner.main(['--models', 'openai/gpt-6-luna', '--limit', str(len(responses)), '--output-dir', temp, *extra])
+            effort = extra[extra.index('--reasoning') + 1] if '--reasoning' in extra else 'low'
+            records = [json.loads(x) for x in Path(temp, f'llm_predictions_reasoning_{effort}.jsonl').read_text().splitlines()]
+            summary = json.loads(Path(temp, f'llm_summary_reasoning_{effort}.json').read_text())[0]
+            calls = [json.loads(x) for x in Path(temp, f'llm_api_calls_reasoning_{effort}.jsonl').read_text().splitlines()]
+        return code, records, summary, calls, session
+
+    def test_pin_reasoning_cost_and_latency(self):
+        body = {'id': 'gen-1', 'choices': [{'message': {'content': 'positive'}}],
+                'usage': {'cost': 0.001, 'prompt_tokens': 10, 'completion_tokens': 2, 'total_tokens': 12}}
+        code, rows, summary, calls, session = self.run_benchmark([response(body)], ['--reasoning', 'high'])
+        payload = session.post.call_args.kwargs['json']
+        self.assertEqual(payload['provider'], {'order': ['openai'], 'only': ['openai'], 'allow_fallbacks': False, 'require_parameters': True})
+        self.assertEqual(payload['reasoning'], {'effort': 'high'})
+        self.assertNotIn('temperature', payload)
+        self.assertEqual(session.headers.update.call_args.args[0]['Authorization'], 'Bearer fake-key')
+        self.assertEqual(code, 0)
+        self.assertTrue(rows[0]['provider_verified'])
+        self.assertEqual(rows[0]['generation_id'], 'gen-1')
+        self.assertEqual(rows[0]['total_tokens'], 12)
+        self.assertEqual(rows[0]['api_cost_usd'], summary['api_cost_usd'])
+        self.assertEqual(rows[0]['inference_seconds'], summary['total_inference_seconds'])
+        self.assertEqual(len(calls), 1)
+
+    def test_provider_mismatch_retains_cost_without_claiming_expected_provider(self):
+        code, rows, summary, _, _ = self.run_benchmark([response({'provider': 'Azure', 'usage': {'cost': 0.01}})])
+        self.assertEqual(code, 1)
+        self.assertIsNone(rows[0]['predicted_label'])
+        self.assertEqual(rows[0]['provider'], 'Azure')
+        self.assertFalse(rows[0]['provider_verified'])
+        self.assertEqual(summary['provider'], 'Azure')
+        self.assertEqual(summary['api_cost_usd'], 0.01)
+
+    def test_http_failure_has_one_call_and_preserves_reported_cost(self):
+        code, rows, summary, calls, session = self.run_benchmark([response({'error': 'busy', 'usage': {'cost': 0.002}}, 503)])
+        self.assertEqual(code, 1)
+        session.post.assert_called_once()
+        self.assertIsNone(rows[0]['predicted_label'])
+        self.assertEqual(summary['api_cost_usd'], 0.002)
+        self.assertEqual(len(calls), 1)
+
+    def test_network_failure_is_recorded_and_next_sentence_runs(self):
+        code, rows, summary, calls, _ = self.run_benchmark([requests.Timeout('fake-key'), response({'choices': [{'message': {'content': 'positive'}}], 'usage': {'cost': 0.001}})])
+        self.assertEqual(code, 1)
+        self.assertNotIn('fake-key', rows[0]['error'])
+        self.assertEqual(rows[1]['predicted_label'], 'positive')
+        self.assertIsNone(summary['api_cost_usd'])
+        self.assertEqual(len(calls), 2)
+
+    def test_unknown_cost_and_reported_zero_are_distinct(self):
+        for usage, expected in (({}, None), ({'cost': 0}, 0), ({'cost': float('nan')}, None)):
+            code, rows, summary, _, _ = self.run_benchmark([response({'choices': [{'message': {'content': 'positive'}}], 'usage': usage})])
+            self.assertEqual(code, 0)
+            self.assertEqual(rows[0]['api_cost_usd'], expected)
+            self.assertEqual(summary['api_cost_usd'], expected)
+
+    def test_ambiguous_output_fails_and_thoughts_are_excluded(self):
+        for raw, expected in (('positive or negative', None), ('<think>negative</think>Positive.', 'positive')):
+            code, rows, _, _, _ = self.run_benchmark([response({'choices': [{'message': {'content': raw}}]})])
+            self.assertEqual(rows[0]['predicted_label'], expected)
+            self.assertEqual(code, int(expected is None))
+
+    def test_malformed_response_does_not_crash_benchmark(self):
+        invalid = requests.Response()
+        invalid.status_code = 200
+        invalid._content = b'[]'
+        code, rows, _, _, _ = self.run_benchmark([invalid])
+        self.assertEqual(code, 1)
+        self.assertIsNotNone(rows[0]['error'])
+
+    def test_none_reasoning_is_sent_explicitly(self):
+        _, _, _, _, session = self.run_benchmark([response({'choices': [{'message': {'content': 'positive'}}]})], ['--reasoning', 'none'])
+        self.assertEqual(session.post.call_args.kwargs['json']['reasoning'], {'enabled': False})
 
     def test_invalid_predictions_count_as_errors(self):
         metrics = evaluate([{'id': '1', 'predicted_label': None}, {'id': '2', 'predicted_label': 'positive'}], {'1': 'negative', '2': 'positive'})

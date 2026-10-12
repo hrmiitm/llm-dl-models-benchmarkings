@@ -123,7 +123,7 @@ function renderChart(configs){
     svg.append(svgNode('line',{x1:px,x2:px,y1:T,y2:B,class:'grid-line'}),svgNode('text',{x:px,y:B+23,'text-anchor':'middle',class:'axis-text'},label));
   }
   svg.append(svgNode('text',{x:L+PW/2,y:H-18,'text-anchor':'middle',class:'axis-title'},W<600?(state.x==='cost'?'Cost / run, USD →':state.x==='mean_latency'?'Mean latency, seconds →':XMETRICS[state.x]):XMETRICS[state.x]));
-  if(state.view==='levels')for(const model of new Set(eligible.filter(c=>!c.isDL).map(c=>c.model))){const levels=eligible.filter(c=>c.model===model);for(let i=0;i<2;i++){const a=levels.find(c=>c.effort===EFFORTS[i]),b=levels.find(c=>c.effort===EFFORTS[i+1]);if(a&&b&&a.signature===b.signature)svg.append(svgNode('path',{d:`M${x(a[state.x])},${y(a[state.y])}L${x(b[state.x])},${y(b[state.y])}`,class:'connector',stroke:color(a)}));}}
+  if(state.view==='levels')for(const route of new Set(eligible.filter(c=>!c.isDL).map(c=>JSON.stringify([c.model,c.requested_provider])))){const levels=eligible.filter(c=>JSON.stringify([c.model,c.requested_provider])===route);for(let i=0;i<2;i++){const a=levels.find(c=>c.effort===EFFORTS[i]),b=levels.find(c=>c.effort===EFFORTS[i+1]);if(a&&b&&a.signature===b.signature)svg.append(svgNode('path',{d:`M${x(a[state.x])},${y(a[state.y])}L${x(b[state.x])},${y(b[state.y])}`,class:'connector',stroke:color(a)}));}}
   const occupiedLabels=[];
   for(const c of eligible){
     const px=x(c[state.x]),py=y(c[state.y]);let mark;
@@ -155,8 +155,10 @@ function renderLegend(){const root=$('#legend');root.replaceChildren();for(const
 
 function renderReasoning(){
   const root=$('#reasoning-cards');root.replaceChildren();const configs=configSelection().filter(c=>!c.isDL);
-  for(const model of new Set(configs.map(c=>c.model))){const card=node('article',null,{class:'reason-card',style:`--color:${color(model)}`});card.append(node('h3',nameOf(model)));
-    for(const effort of EFFORTS){const c=configs.find(c=>c.model===model&&c.effort===effort);if(!c)continue;
+  for(const route of new Set(configs.map(c=>JSON.stringify([c.model,c.requested_provider])))){
+    const group=configs.filter(c=>JSON.stringify([c.model,c.requested_provider])===route),model=group[0].model;
+    const card=node('article',null,{class:'reason-card',style:`--color:${color(model)}`});card.append(node('h3',`${nameOf(model)}${group[0].requested_provider?' · '+group[0].requested_provider:''}`));
+    for(const effort of EFFORTS){const c=group.find(c=>c.effort===effort);if(!c)continue;
       const row=node('div',null,{class:'reason-row'}),left=node('div',null),right=node('div',null);
       left.append(node('strong',`${effort==='low'?'●':effort==='medium'?'◆':'■'} ${level(c)}`));
       right.append(node('strong',pct(c[state.y])));const track=node('div',null,{class:'reason-track'});const visual=finite(c[state.y])?(lowerIsBetter()?1-c[state.y]:c[state.y]):0;track.append(node('span','',{style:`width:${Math.max(0,Math.min(100,visual*100))}%`}));right.append(track,node('small',`${duration(c.mean_latency)} · ${money(c.cost)} / run`));row.append(left,right);card.append(row);
@@ -166,7 +168,7 @@ function renderReasoning(){
 }
 function sortConfigs(configs){return [...configs].sort((a,b)=>{const av=a[state.sort],bv=b[state.sort];if(av==null)return bv==null?0:1;if(bv==null)return-1;const compare=typeof av==='string'?av.localeCompare(bv):av-bv;return state.descending?-compare:compare;});}
 function renderTable(configs){for(const button of document.querySelectorAll('[data-sort]'))button.parentElement.setAttribute('aria-sort',button.dataset.sort===state.sort?(state.descending?'descending':'ascending'):'none');const root=$('#table-body');root.replaceChildren();for(const c of sortConfigs(configs)){
-  const tr=node('tr',null,{style:`--color:${color(c)}`,class:c.complete?'':'partial'}),name=node('td',null);name.append(node('strong',c.name),node('span',c.isDL?'DL':'LLM',{class:'tag'}),node('small',c.model));tr.append(name);
+  const tr=node('tr',null,{style:`--color:${color(c)}`,class:c.complete?'':'partial'}),name=node('td',null);name.append(node('strong',c.name),node('span',c.isDL?'DL':'LLM',{class:'tag'}),node('small',c.model));if(c.requested_provider)name.append(node('small',`Provider: ${c.requested_provider}${c.provider_verified?' · verified':''}`));tr.append(name);
   tr.append(node('td',level(c)),node('td',pct(c.accuracy)),node('td',pct(c.macro_f1)),node('td',duration(c.mean_latency)));
   const cost=node('td',null);cost.append(document.createTextNode(money(c.cost)),node('small',c.cost_kind));cost.title=c.cost_note;tr.append(cost);
   const answers=node('td',null);answers.append(document.createTextNode(`${c.successful??'?'} / ${c.attempts??c.samples??'?'}`));if(c.effort==='overall')answers.append(node('small',`${c.samples} unique · ${c.configurations} levels`));else if(c.failed)answers.append(node('small',`${c.failed} failed/missing`));tr.append(answers);
@@ -206,7 +208,7 @@ for(const [id,key]of [['complete-only','completeOnly'],['point-labels','labels']
 for(const view of ['levels','overall'])$('#view-'+view).addEventListener('click',()=>{state.view=view;state.inspect=null;render();writeState();});
 $('#inspect').addEventListener('change',event=>{state.inspect=event.target.value;renderMatrix();});
 for(const button of document.querySelectorAll('[data-sort]'))button.addEventListener('click',()=>{const field=button.dataset.sort;state.descending=state.sort===field?!state.descending:true;state.sort=field;renderTable(selected());});
-$('#export').addEventListener('click',()=>{const columns=['model','family','effort','samples','attempts','configurations','successful','failed','accuracy','macro_f1','balanced_accuracy','precision','recall','mean_latency','total_inference','cost','cost_kind','prompt_tokens','completion_tokens','total_tokens'];const escape=value=>'"'+String(value??'').replaceAll('"','""')+'"';const rows=[columns,...sortConfigs(selected()).map(c=>columns.map(key=>c[key]))];const url=URL.createObjectURL(new Blob([rows.map(r=>r.map(escape).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'}));const a=node('a','',{href:url,download:`sentiment-benchmark-${state.view}.csv`});document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);});
+$('#export').addEventListener('click',()=>{const columns=['model','requested_provider','provider','provider_verified','family','effort','samples','attempts','configurations','successful','failed','accuracy','macro_f1','balanced_accuracy','precision','recall','mean_latency','total_inference','cost','cost_kind','prompt_tokens','completion_tokens','total_tokens'];const escape=value=>'"'+String(value??'').replaceAll('"','""')+'"';const rows=[columns,...sortConfigs(selected()).map(c=>columns.map(key=>c[key]))];const url=URL.createObjectURL(new Blob([rows.map(r=>r.map(escape).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'}));const a=node('a','',{href:url,download:`sentiment-benchmark-${state.view}.csv`});document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);});
 function themeLabel(){$('#theme').textContent=document.documentElement.dataset.theme==='dark'?'Light mode':'Dark mode';}
 $('#theme').addEventListener('click',()=>{const dark=document.documentElement.dataset.theme!=='dark';document.documentElement.dataset.theme=dark?'dark':'light';try{localStorage.setItem('sentiment-theme',dark?'dark':'light');}catch{}themeLabel();});themeLabel();
 let resizeTimer;window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>{if(data)renderChart(selected());},100);});

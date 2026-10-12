@@ -94,3 +94,11 @@ test('actual result metrics agree with the independently saved evaluation',()=>{
  assert.equal(new Set(result.configs.map(c=>c.id)).size,result.configs.length);
  assert.ok(!manifest.files.some(f=>f.path.includes('smoke')));
 });
+
+test('provider pins keep configurations and overall averages separate',()=>{
+ const a=records.map(r=>({...r,requested_provider:'openai',provider:'OpenAI',provider_verified:true}));
+ const b=records.map(r=>({...r,requested_provider:'azure',provider:'Azure',provider_verified:true}));
+ const configs=prepareData([...loaded(a),{path:'results/other/llm_predictions_reasoning_low.jsonl',data:b}],truthRows).configs;
+ assert.equal(configs.length,2);assert.equal(overallConfigs(configs).length,2);
+ assert.deepEqual(new Set(configs.map(c=>c.requested_provider)),new Set(['openai','azure']));
+});

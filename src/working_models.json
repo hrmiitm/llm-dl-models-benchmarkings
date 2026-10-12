@@ -1,6 +1,72 @@
 [
-  {"model": "anthropic/claude-sonnet-5.5", "endpoints": ["https://openrouter.ai/api/v1/chat/completions"], "reasoning": true, "temperature": null},
-  {"model": "openai/gpt-6-luna", "endpoints": ["https://openrouter.ai/api/v1/chat/completions"], "reasoning": true, "temperature": null},
-  {"model": "qwen/qwen3-14b", "endpoints": ["https://openrouter.ai/api/v1/chat/completions"], "reasoning": true, "temperature": 0},
-  {"model": "google/gemini-3.1-flash-lite", "endpoints": ["https://openrouter.ai/api/v1/chat/completions"], "reasoning": true, "temperature": 0}
+  {
+    "model": "anthropic/claude-sonnet-5.5",
+    "endpoints": [
+      "https://openrouter.ai/api/v1/chat/completions"
+    ],
+    "reasoning": true,
+    "temperature": null,
+    "provider": "anthropic",
+    "provider_name": "Anthropic"
+  },
+  {
+    "model": "openai/gpt-6-luna",
+    "endpoints": [
+      "https://openrouter.ai/api/v1/chat/completions"
+    ],
+    "reasoning": true,
+    "temperature": null,
+    "provider": "openai",
+    "provider_name": "OpenAI"
+  },
+  {
+    "model": "qwen/qwen3-14b",
+    "endpoints": [
+      "https://openrouter.ai/api/v1/chat/completions"
+    ],
+    "reasoning": true,
+    "temperature": 0,
+    "provider": "deepinfra/fp8",
+    "provider_name": "DeepInfra"
+  },
+  {
+    "model": "google/gemini-3.1-flash-lite",
+    "endpoints": [
+      "https://openrouter.ai/api/v1/chat/completions"
+    ],
+    "reasoning": true,
+    "temperature": 0,
+    "provider": "google-vertex/global",
+    "provider_name": "Google"
+  },
+  {
+    "model": "google/gemini-3.8-flash",
+    "endpoints": [
+      "https://openrouter.ai/api/v1/chat/completions"
+    ],
+    "reasoning": true,
+    "temperature": null,
+    "provider": "google-vertex/global",
+    "provider_name": "Google"
+  },
+  {
+    "model": "google/gemma-4-26b-a4b-it",
+    "endpoints": [
+      "https://openrouter.ai/api/v1/chat/completions"
+    ],
+    "provider": "deepinfra/fp8",
+    "provider_name": "DeepInfra",
+    "reasoning": true,
+    "temperature": 0
+  },
+  {
+    "model": "google/gemma-4-31b-it",
+    "endpoints": [
+      "https://openrouter.ai/api/v1/chat/completions"
+    ],
+    "provider": "deepinfra/fp8",
+    "provider_name": "DeepInfra",
+    "reasoning": true,
+    "temperature": 0
+  }
 ]

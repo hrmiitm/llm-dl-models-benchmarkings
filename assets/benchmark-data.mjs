@@ -72,7 +72,7 @@ function fileInfo(path) {
   return {family:match[1],type:match[2],suffix:match[3],run:path.slice(0,path.lastIndexOf('/')+1)+match[1]+match[3]};
 }
 const effortOf=(row,info)=>info.family==='dl'?'none':row.reasoning_effort??row.effort??(info.suffix.match(/(?:^|_)(low|medium|high)(?:_|$)/)?.[1]??'unrecorded');
-function keyOf(row,info) {return JSON.stringify([row.model,effortOf(row,info),row.endpoint??'',row.temperature??null]);}
+function keyOf(row,info) {return JSON.stringify([row.model,effortOf(row,info),row.endpoint??'',row.temperature??null,row.requested_provider??null]);}
 
 export function prepareData(loaded, truthRows) {
   const truth=new Map(), warnings=[], candidates=[], runs=new Map();
@@ -115,8 +115,9 @@ export function prepareData(loaded, truthRows) {
       const latencies=metrics.rows.filter(r=>r.valid && validCount(r.raw?.inference_seconds)).map(r=>r.raw.inference_seconds);
       const recordedLatencies=matched.map(r=>r.inference_seconds).filter(validCount);
       const sumToken=field=>sumIfKnown(matched.map(r=>r[field]))??(validCount(seed[field])?seed[field]:null);
-      const environment=loaded.find(f=>f.path===run.files[0].path.slice(0,run.files[0].path.lastIndexOf('/')+1)+'environment.json')?.data;
+      const environment=loaded.find(f=>f.path===run.files[0].path.slice(0,run.files[0].path.lastIndexOf('/')+1)+'environment'+run.info.suffix+'.json')?.data ?? loaded.find(f=>f.path===run.files[0].path.slice(0,run.files[0].path.lastIndexOf('/')+1)+'environment.json')?.data;
       const c={...metrics,id:key,model:seed.model,name:nameOf(seed.model),family:isDL?'dl':'llm',isDL,
+        requested_provider:seed.requested_provider??null,provider:seed.provider??null,provider_verified:seed.provider_verified??null,
         effort:effortOf(seed,run.info),endpoint:seed.endpoint??g.seed.endpoint??'',temperature:seed.temperature??g.seed.temperature??null,
         device:seed.device??matched.find(r=>r.device)?.device??environment?.gpu??'Unrecorded',
         mean_latency:latencies.length?mean(latencies):finite(seed.mean_latency_ms)?seed.mean_latency_ms/1000:finite(seed.average_inference_ms)?seed.average_inference_ms/1000:null,
@@ -170,11 +171,11 @@ export function priceConfig(config, pricing, state) {
 }
 
 export function overallConfigs(configs) {
-  const groups=new Map();for(const c of configs) {if(!groups.has(c.model)) groups.set(c.model,[]);groups.get(c.model).push(c);}
+  const groups=new Map();for(const c of configs) {const key=JSON.stringify([c.model,c.requested_provider??null]);if(!groups.has(key)) groups.set(key,[]);groups.get(key).push(c);}
   return [...groups.values()].map(levels=>{
     if(levels[0].isDL) return levels[0];
     const average=key=>levels.every(c=>finite(c[key]))?mean(levels.map(c=>c[key])):null;
-    const c={...levels[0],id:levels[0].model+'|overall',effort:'overall',levels:levels.map(c=>c.effort),
+    const c={...levels[0],id:levels[0].model+'|'+(levels[0].requested_provider??'unrecorded')+'|overall',effort:'overall',levels:levels.map(c=>c.effort),
       configurations:levels.length,sources:[...new Set(levels.flatMap(c=>c.sources))],
       prediction_source:null,rows:levels.flatMap(c=>c.rows),complete:levels.every(c=>c.complete),
       successful:levels.reduce((s,c)=>s+(c.successful??0),0),failed:levels.reduce((s,c)=>s+(c.failed??0),0),

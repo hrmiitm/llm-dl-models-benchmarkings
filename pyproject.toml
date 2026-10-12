@@ -9,8 +9,12 @@ authors = [
 requires-python = ">=3.12"
 dependencies = [
     "datasets>=5.1.0",
+    "protobuf>=7.36.2",
     "python-dotenv>=1.2.4",
     "requests>=2.34.2",
+    "sentencepiece>=0.2.2",
+    "torch>=2.14.1",
+    "transformers>=5.19.0",
 ]
 
 [project.scripts]

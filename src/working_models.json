@@ -16,5 +16,5 @@
   "endpoints": [
     "https://llmfoundry.straivedemo.com/gemini/v1beta/models/gemini-3.8-flash:generateContent",
   ]
-  },
+  }
 ]

@@ -30,6 +30,7 @@ const aliases = {
   id: ['id', 'sample_id', 'sentence_id'], sentence: ['sentence', 'text', 'input.text'],
   label: ['predicted_label', 'prediction.label', 'prediction', 'label', 'sentiment'],
   confidence: ['confidence', 'mean_confidence', 'avg_confidence', 'confidence_percent', 'prediction.confidence'],
+  nativeConfidence: ['native_confidence', 'mean_native_confidence'], macroF1: ['macro_f1', 'metrics.macro_f1'],
   accuracy: ['accuracy', 'metrics.accuracy', 'accuracy_percent', 'accuracy_pct'],
   cost: ['api_cost_usd', 'total_cost_usd', 'cost_usd', 'usage.cost', 'cost'],
   seconds: ['inference_seconds', 'latency_seconds', 'latency_ms'],
@@ -68,16 +69,19 @@ function normalize(row, file, adapter, registry) {
   const ratio = key => { const { value, path } = pick(key); return fraction(value, adapter.units?.[key] || (/percent|_pct$/.test(path) ? 'percent' : 'fraction')); };
   const seconds = key => { const { value, path } = pick(key); const n = nonnegative(value); return n === null ? null : n / (adapter.units?.[key] === 'ms' || path.endsWith('_ms') ? 1000 : 1); };
   let kind = String(adapter.family || v('kind') || '').toLowerCase();
-  if (!['dl', 'llm'].includes(kind)) kind = /(?:^|\/)dl_/.test(file.path) || row.device || row.probabilities ? 'dl' : /(?:^|\/)llm_/.test(file.path) || row.usage || row.reasoning_effort || row.endpoint ? 'llm' : null;
+  if (!['dl', 'llm', 'decision'].includes(kind)) kind = /\/decision_models\//.test(file.path) || /\/alpha\/decisions(?:$|[/?])/.test(row.endpoint || '') ? 'decision' : /(?:^|\/)dl_/.test(file.path) || row.device ? 'dl' : /(?:^|\/)llm_/.test(file.path) || row.usage || row.reasoning_effort || row.endpoint ? 'llm' : row.probabilities ? 'dl' : null;
+  const provider = pick('provider');
+  const pin = kind === 'decision' && provider.path === 'provider' && !adapter.fields?.provider ? '' : String(provider.value || '');
   const currency = String(row.currency || adapter.currency || 'USD').toUpperCase();
   return {
-    model: String(v('model') || ''), kind, effort: kind === 'dl' ? 'dl' : String(v('effort') || 'default').toLowerCase(),
+    model: String(v('model') || ''), kind, effort: kind !== 'llm' ? kind : String(v('effort') || 'default').toLowerCase(),
     id: v('id') == null ? null : String(v('id')), sentence: v('sentence'), label: String(v('label') || '').toLowerCase(),
     costPresent: pick('cost').path !== '' || number(row.api_calls_without_cost) > 0, secondsPresent: pick('seconds').path !== '',
-    confidence: ratio('confidence'), accuracy: ratio('accuracy'), cost: currency === 'USD' && !(number(row.api_calls_without_cost) > 0) ? nonnegative(v('cost')) : null,
+    confidence: ratio('confidence'), nativeConfidence: ratio('nativeConfidence'), macroF1: ratio('macroF1'),
+    confidenceSource: row.confidence_source || (kind === 'decision' ? 'top_class_probability' : kind === 'dl' ? 'classifier_probability' : 'model_reported'), accuracy: ratio('accuracy'), cost: currency === 'USD' && !(number(row.api_calls_without_cost) > 0) ? nonnegative(v('cost')) : null,
     seconds: seconds('seconds'), totalSeconds: seconds('totalSeconds'), wallSeconds: seconds('wallSeconds'),
     samples: number(v('samples')), successful: number(v('successful')), failed: number(v('failed')),
-    confidenceSamples: number(row.confidence_samples), provider: String(v('provider') || ''),
+    confidenceSamples: number(row.confidence_samples), provider: pin,
     actualProvider: String(row.provider || ''), providerVerified: row.provider_verified,
     routing: row.provider_routing || null, endpoint: String(v('endpoint') || ''), device: String(v('device') || ''),
     temperature: v('temperature') ?? null, dtype: String(row.dtype || ''), revision: String(v('revision') || ''),
@@ -113,7 +117,7 @@ export function prepareData(files, truthRows, registry = {}, groundTruth = 'data
   }
   const candidates = [...groups.values()].map(g => {
     const summary = g.summaries.at(-1), base = g.rows[0] || summary, reasons = [], notes = [];
-    let complete = false, accuracy = null, confidence = null, cost = null, totalSeconds = null, coverage = 0;
+    let complete = false, accuracy = null, confidence = null, nativeConfidence = null, macroF1 = null, cost = null, totalSeconds = null, coverage = 0;
     if (g.rows.length) {
       const ids = new Set(); let correct = 0; const valid = [];
       for (const r of g.rows) {
@@ -128,7 +132,17 @@ export function prepareData(files, truthRows, registry = {}, groundTruth = 'data
       }
       if (coverage !== truth.size || g.rows.length !== truth.size) reasons.push(`Incomplete matching predictions (${coverage}/${truth.size})`);
       complete = !reasons.length;
-      if (complete) { accuracy = correct / truth.size; confidence = valid.every(r => r.confidence !== null) ? valid.reduce((s, r) => s + r.confidence, 0) / truth.size : null; }
+      if (complete) {
+        accuracy = correct / truth.size;
+        confidence = valid.every(r => r.confidence !== null) ? valid.reduce((s, r) => s + r.confidence, 0) / truth.size : null;
+        nativeConfidence = valid.every(r => r.nativeConfidence !== null) ? valid.reduce((s, r) => s + r.nativeConfidence, 0) / truth.size : null;
+        macroF1 = ['negative', 'neutral', 'positive'].reduce((sum, label) => {
+          const tp = valid.filter(r => r.label === label && truth.get(r.id).label === label).length;
+          const fp = valid.filter(r => r.label === label && truth.get(r.id).label !== label).length;
+          const fn = valid.filter(r => r.label !== label && truth.get(r.id).label === label).length;
+          return sum + (2 * tp + fp + fn ? 2 * tp / (2 * tp + fp + fn) : 0);
+        }, 0) / 3;
+      }
       cost = sumKnown(g.rows.map(r => r.cost)); totalSeconds = sumKnown(g.rows.map(r => r.seconds));
       // A summary may supply totals only when the corresponding raw field is absent, never when explicitly unknown.
       if (cost === null && g.rows.every(r => !r.costPresent)) cost = summary?.cost ?? null;
@@ -141,13 +155,17 @@ export function prepareData(files, truthRows, registry = {}, groundTruth = 'data
       if (!idsMatch && summary.testSet !== groundTruth) reasons.push('Summary test set unverified; declare test_set in an adapter');
       if (summary.accuracy === null) reasons.push('Missing or invalid summary accuracy');
       complete = !reasons.length;
-      if (complete) { accuracy = summary.accuracy; confidence = summary.confidenceSamples !== null && summary.confidenceSamples !== truth.size ? null : summary.confidence; coverage = truth.size; }
+      if (complete) { accuracy = summary.accuracy; confidence = summary.confidenceSamples !== null && summary.confidenceSamples !== truth.size ? null : summary.confidence; nativeConfidence = number(summary.raw.native_confidence_samples) !== null && number(summary.raw.native_confidence_samples) !== truth.size ? null : summary.nativeConfidence; macroF1 = summary.macroF1; coverage = truth.size; }
       cost = summary.cost; totalSeconds = summary.totalSeconds;
       notes.push('Saved aggregate; not independently rescored from predictions');
     }
+    const actualProviders = [...new Set(g.rows.length ? g.rows.map(r => r.actualProvider).filter(Boolean) : (Array.isArray(base.raw.providers) ? base.raw.providers : [base.actualProvider]).filter(Boolean))].sort();
+    if (base.kind === 'decision' && !base.provider) notes.push('Provider routing was not pinned for this saved run. Returned providers: ' + (actualProviders.join(', ') || 'not recorded') + '.');
+    const responseModels = [...new Set(g.rows.map(r => r.raw.response_model).filter(Boolean))].sort();
     const repairedSamples = g.rows.filter(r => r.raw.replaced_attempt).length;
     if (repairedSamples) notes.push(`${repairedSamples} failed prediction(s) replaced. Cost and mean inference latency cover retained attempts; earlier attempts are in the API logs. ${summary?.unpriced_api_attempts ?? 'Unknown number of'} earlier/current API attempt(s) have unknown charges.`);
-    return { ...base, repairedSamples, id: g.signature, complete, accuracy, confidence, cost, totalSeconds, wallSeconds: summary?.wallSeconds ?? base.wallSeconds,
+    return { ...base, repairedSamples, id: g.signature, complete, accuracy, confidence, nativeConfidence, macroF1, actualProviders, responseModels, cost, totalSeconds,
+      latencyMs: totalSeconds === null ? null : 1000 * totalSeconds / (g.rows.length || summary?.samples || truth.size), wallSeconds: summary?.wallSeconds ?? base.wallSeconds,
       coverage, samples: truth.size, reasons: [...new Set(reasons)], notes, sources: [...g.sources], modified: g.modified,
       scoring: g.rows.length ? 'Raw predictions / answer key' : 'Declared full-test summary',
       providerVerified: g.rows.length ? g.rows.every(r => r.providerVerified === true) : base.providerVerified === true,
@@ -185,4 +203,28 @@ export function costDomain(values, log = false) {
   let min = 10 ** Math.floor(Math.log10(minimum)), max = 10 ** Math.ceil(Math.log10(maximum));
   if (min === max) { min /= 10; max *= 10; }
   return [min, max];
+}
+
+export const familyLabel = kind => ({llm: 'LLM', dl: 'DL', decision: 'Decision'}[kind] || kind);
+export function providerLabel(c) {
+  if (c.kind === 'dl') return c.device || 'Local compute';
+  return c.provider ? `Pinned: ${c.provider}` : `Unpinned: ${(c.actualProviders || []).join(', ') || 'not recorded'}`;
+}
+export function filterConfigs(configs, {families = ['llm', 'dl', 'decision'], model = 'all', effort = 'all', status = 'all', query = '', source = 'all'} = {}) {
+  query = query.trim().toLowerCase();
+  return configs.filter(c => families.includes(c.kind) && (model === 'all' || c.model === model || c.kind === model)
+    && (effort === 'all' || c.kind !== 'llm' || c.effort === effort)
+    && (status === 'all' || c.complete === (status === 'complete'))
+    && (source === 'all' || c.confidenceSource === source)
+    && (!query || [c.model, c.raw?.model_alias, c.kind, c.effort, providerLabel(c), c.costKind, c.scoring].join(' ').toLowerCase().includes(query)));
+}
+export function sortConfigs(configs, key = 'model', direction = 'asc') {
+  const value = c => key === 'provider' ? providerLabel(c) : key === 'kind' ? familyLabel(c.kind) : c[key];
+  const multiplier = direction === 'desc' ? -1 : 1;
+  return [...configs].sort((a, b) => {
+    const av = value(a), bv = value(b), missing = v => v == null || typeof v === 'number' && !Number.isFinite(v);
+    if (missing(av) || missing(bv)) return Number(missing(av)) - Number(missing(bv));
+    const order = typeof av === 'number' && typeof bv === 'number' || typeof av === 'boolean' && typeof bv === 'boolean' ? Number(av) - Number(bv) : String(av).localeCompare(String(bv));
+    return order * multiplier || a.model.localeCompare(b.model) || a.effort.localeCompare(b.effort);
+  });
 }

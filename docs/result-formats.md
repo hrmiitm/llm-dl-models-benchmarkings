@@ -12,7 +12,7 @@ prediction records and must not be added as another run.
 
 ## Predictions (preferred)
 
-Use `model`, `model_kind` (`llm` or `dl`), `id`, `predicted_label` and optional
+Use `model`, `model_kind` (`llm`, `dl` or `decision`), `id`, `predicted_label` and optional
 `sentence`. IDs must match the entire answer key and provided sentences must
 match too. Labels are `negative`, `neutral`, `positive`. Include `confidence`
 (0–1), `api_cost_usd` (USD per example), `inference_seconds`, `reasoning_effort`,
@@ -57,7 +57,7 @@ Example adapter for a new exporter; replace the paths/fields with your own:
 ```
 
 Mapping keys: `model`, `kind`, `effort`, `id`, `sentence`, `label`, `confidence`,
-`accuracy`, `cost`, `seconds`, `totalSeconds`, `wallSeconds`, `samples`,
+`accuracy`, `macroF1`, `nativeConfidence`, `cost`, `seconds`, `totalSeconds`, `wallSeconds`, `samples`,
 `successful`, `failed`, `provider`, `endpoint`, `device`, `temperature`, `revision`.
 Fields support dotted paths; patterns support `*`. Units default to fractions,
 seconds and USD. Use explicit `percent` for 0–100 data and `ms` for milliseconds.
@@ -84,9 +84,33 @@ USD/hour; T4 presets require a recorded T4 device. Choose inference-only or
 minimums are excluded. Google GPU-only pricing excludes the CPU/RAM host.
 Rate sources/date are in `results/cloud_rates.json`; update them when needed.
 
-The confidence graph accepts only complete LLM configurations with confidence.
-It compares mean reported confidence to accuracy; this is not an ECE/reliability
+The confidence graph accepts complete configurations with confidence in all
+selected families. LLM confidence is self-reported; DL and decision confidence
+are selected-class probabilities. The native decision API confidence is a
+separate metric and appears only in the table, tooltips and export.
+It compares mean selected-label confidence to accuracy; this is not an ECE/reliability
 diagram and does not establish probability calibration. Select Detail for an
 80–100% view, and Full for both axes at 0–100%. Missing intermediate reasoning
 levels are not bridged. Legend buttons hide models; points support mouse, touch
 and keyboard focus. Hovering an exact overlap lists every coincident configuration.
+
+## Explore and group
+
+All three families start visible. Shared family checkboxes support arbitrary
+combinations; quick views select LLM only, DL only, decision only, or all.
+Reasoning filters affect LLM configurations. Each chart has independent model,
+axis and label controls; the confidence-source selector filters probability type.
+Reset all filters restores the initial comparison.
+
+The table supports model/family/provider grouping, numeric or text sorting,
+column-header sorting, ascending/descending order, model selection, status
+filters, search and collapsible groups. Groups follow their first ranked
+configuration, without averaging scores/costs. Select No grouping for a global
+ranking. CSV export includes all filtered configurations, even if groups are
+collapsed; source fractions remain 0–1 and costs USD in the export.
+
+Decision files are recognized by `model_kind: "decision"`, a
+`results/decision_models/` path, an `/alpha/decisions` endpoint, or an adapter.
+Returned providers do not split an unpinned decision run into incomplete groups.
+Requested provider pins remain part of configuration identity. Tables/tooltips
+show the actual provider mix and identify unpinned runs explicitly.

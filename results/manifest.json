@@ -15,6 +15,14 @@
       "modified_at": "2026-10-12T20:56:40.718648+00:00"
     },
     {
+      "path": "results/decision_models/20261012T220152231537Z/llm_predictions.jsonl",
+      "modified_at": "2026-10-12T22:03:08.921772+00:00"
+    },
+    {
+      "path": "results/decision_models/20261012T220152231537Z/llm_summary.json",
+      "modified_at": "2026-10-12T22:03:08.923312+00:00"
+    },
+    {
       "path": "results/llm_predictions_reasoning_high.jsonl",
       "modified_at": "2026-10-12T21:31:51.301739+00:00"
     },

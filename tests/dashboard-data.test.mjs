@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { parseCSV, parseFile, prepareData, priceConfig, plotEligible, adjacentConnections, costDomain } from '../assets/data.mjs';
+import { parseCSV, parseFile, prepareData, priceConfig, plotEligible, adjacentConnections, costDomain, filterConfigs, sortConfigs, providerLabel } from '../assets/data.mjs';
 const truth = [{id:'1',sentence:'Loss.',label:'negative'},{id:'2',sentence:'Meeting.',label:'neutral'},{id:'3',sentence:'Profit.',label:'positive'}];
 const rows = truth.map(r => ({...r, model:'example', predicted_label:r.label, confidence:.9, inference_seconds:.1, api_cost_usd:.01, reasoning_effort:'low', requested_provider:'pin'}));
 const file = (data, path='results/llm_predictions_low.jsonl', modified_at='2026-10-13T00:00:00Z') => ({path, data, modified_at});
@@ -89,8 +89,8 @@ test('repository metrics agree with saved summaries for selected source runs', (
  assert.equal(result.sampleCount,30);
  assert.ok(result.configs.filter(c=>c.complete).every(c=>c.coverage===result.sampleCount));
  for(const f of files.filter(f=>/summary|evaluation/.test(f.path))) for(const row of f.data) {
-  const c=result.configs.find(c=>c.model===row.model&&c.effort===(row.reasoning_effort||'dl')&&c.sources.includes(f.path));
-  if(c?.complete) { assert.ok(Math.abs(c.accuracy-row.accuracy)<1e-12); if(c.kind==='llm') assert.ok(Math.abs(c.cost-row.api_cost_usd)<1e-12); }
+  const c=result.configs.find(c=>c.model===row.model&&c.effort===(row.reasoning_effort||(f.path.includes('decision_models')?'decision':'dl'))&&c.sources.includes(f.path));
+  if(c?.complete) { assert.ok(Math.abs(c.accuracy-row.accuracy)<1e-12); if(c.kind!=='dl') assert.ok(Math.abs(c.cost-row.api_cost_usd)<1e-12); }
  }
  assert.ok(manifest.files.every(f=>!f.path.includes('api_calls')&&!f.path.includes('smoke')));
 });
@@ -99,4 +99,34 @@ test('empty and zero-only log domains remain finite and positive', () => {
  for(const values of [[],[0],[null,NaN,-1]]) { const [min,max]=costDomain(values,true); assert.ok(min>0&&max>min&&Number.isFinite(max)); }
  assert.deepEqual(costDomain([.001],true),[.0001,.01]);
  assert.deepEqual(costDomain([0],false),[0,.001]);
+});
+
+test('decision API probabilities do not imply DL and mixed returned providers do not split an unpinned run', () => {
+ const decisionRows=rows.map((r,i)=>({...r,requested_provider:undefined,reasoning_effort:undefined,endpoint:'https://gateway/openrouter/alpha/decisions',confidence_source:'top_class_probability',native_confidence:.7,probabilities:Object.fromEntries(['negative','neutral','positive'].map(label=>[label,label===r.predicted_label?.9:.05])),provider:i===0?'DeepInfra':'PrimeIntellect',response_model:'example-version'}));
+ const c=prepareData([file(decisionRows,'results/decision_models/run/llm_predictions.jsonl')],truth).configs[0];
+ assert.equal(c.kind,'decision'); assert.equal(c.effort,'decision'); assert.ok(c.complete); assert.equal(c.provider,'');
+ assert.deepEqual(c.actualProviders,['DeepInfra','PrimeIntellect']); assert.equal(c.confidence,.9); assert.ok(Math.abs(c.nativeConfidence-.7)<1e-12);
+ assert.deepEqual(c.responseModels,['example-version']); assert.match(providerLabel(c),/Unpinned/);
+ assert.equal(priceConfig(c,{id:'custom'},999).pricedCost,.03);
+});
+test('full-set native confidence and macro F1 are independent of winning-label confidence', () => {
+ const c=config(rows.map((r,i)=>({...r,predicted_label:i===0?'neutral':r.predicted_label,native_confidence:i===0?null:.5})));
+ assert.equal(c.nativeConfidence,null); assert.equal(c.confidence,.9); assert.equal(c.macroF1,(0+2/3+1)/3);
+});
+test('family combinations, reasoning, source, status and search filters remain independent', () => {
+ const base=config(), a={...base,model:'chat',kind:'llm',effort:'low',confidenceSource:'model_reported'}, b={...base,model:'gpu',kind:'dl',effort:'dl',device:'Tesla T4',confidenceSource:'classifier_probability'}, c={...base,model:'choice',kind:'decision',effort:'decision',provider:'',actualProviders:['Cloudflare'],confidenceSource:'top_class_probability'};
+ const all=[a,b,c]; assert.equal(filterConfigs(all).length,3);
+ assert.deepEqual(filterConfigs(all,{families:['decision']}).map(c=>c.model),['choice']);
+ assert.equal(filterConfigs(all,{families:[]}).length,0);
+ assert.deepEqual(filterConfigs(all,{families:['llm','decision']}).map(c=>c.model),['chat','choice']);
+ assert.deepEqual(filterConfigs(all,{source:'classifier_probability'}).map(c=>c.model),['gpu']);
+ assert.deepEqual(filterConfigs(all,{query:'unpinned'}).map(c=>c.model),['choice']);
+ assert.deepEqual(filterConfigs(all,{effort:'high'}).map(c=>c.model),['gpu','choice']);
+ assert.equal(filterConfigs(all,{status:'excluded'}).length,0);
+});
+test('numeric ranking is numeric, zero is valid, unknown values stay last in both directions', () => {
+ const base=config(), values=[10,.1,2,0,null].map((value,i)=>({...base,model:String(i),pricedCost:value}));
+ assert.deepEqual(sortConfigs(values,'pricedCost','asc').map(c=>c.pricedCost),[0,.1,2,10,null]);
+ assert.deepEqual(sortConfigs(values,'pricedCost','desc').map(c=>c.pricedCost),[10,2,.1,0,null]);
+ assert.deepEqual(values.map(c=>c.pricedCost),[10,.1,2,0,null]);
 });

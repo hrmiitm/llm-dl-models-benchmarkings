@@ -72,6 +72,19 @@ pin, temperature and reasoning, replace recovered rows, and rebuild summaries.
 API logs retain all attempts; displayed cost/latency cover retained predictions,
 while earlier attempts' unknown charges are recorded separately.
 
+## Run decision models
+
+Uses the same `LLMFOUNDRY_API_KEY` and the Decisions endpoint:
+
+```bash
+uv run python src/run_decision_models.py --smoke
+uv run python src/run_decision_models.py
+```
+
+Each run has its own timestamped folder in `results/decision_models/`.
+Confidence is the selected class probability; native API confidence is separate.
+These runs use default routing; returned provider mixes are recorded.
+
 ## Run DL models on Colab T4
 
 Select **Runtime → Change runtime type → T4 GPU**, then run:
@@ -129,9 +142,13 @@ uv run python -m http.server 8000 --bind 127.0.0.1
 
 Open **http://127.0.0.1:8000/**. Rebuild the manifest after adding results, then
 click **Refresh results**. The two graphs compare total cost vs full-test accuracy
-(DL + LLM) and reported confidence vs accuracy (LLM only). Failed or incomplete
+(DL + LLM + decision) and selected-label confidence vs accuracy (all families). Failed or incomplete
 configurations are excluded. Choose log/linear cost, model, reasoning level,
-Azure/GCP/custom DL rate, and inference-only or model wall time.
+Azure/GCP/custom DL rate, and inference-only or model wall time. Family checkboxes
+and quick views apply to both graphs and the table; all families start visible.
+The table supports model/family/provider grouping, search, sortable columns and
+filtered CSV export. Groups retain individual configurations; choose No grouping
+for a global ranking. Native decision confidence stays separate.
 
 The page reads original JSON, JSONL and CSV files from `results/`; scores are not
 embedded in the HTML. [Adding another result format](docs/result-formats.md)

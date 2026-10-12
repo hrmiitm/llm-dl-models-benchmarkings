@@ -176,3 +176,31 @@ footer a { text-decoration: none; }
   html { scroll-behavior: auto; }
   .plot-point { transition: none; }
 }
+.selection-panel { border: 1px solid var(--border); border-radius: 6px; background: var(--sage-soft); padding: 18px 20px; margin: 0 0 32px; }
+.selection-heading, .selection-controls, .table-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 16px; }
+.selection-heading { justify-content: space-between; margin-bottom: 12px; }
+.selection-controls > .control { min-width: 190px; }
+.family-checks { border: 0; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 18px; }
+.family-checks legend { color: var(--muted); font-size: 12px; padding: 0 0 9px; }
+.family-checks label { display: flex; align-items: center; gap: 7px; font-size: 13px; cursor: pointer; }
+.table-toolbar { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: end; gap: 12px; }
+.table-toolbar .control { min-width: 0; }
+input[type="search"] { height: 39px; min-width: 0; border: 1px solid var(--border); border-radius: 5px; background: white; padding: 8px 10px; font-size: 12px; }
+.table-actions { margin: 12px 0; justify-content: flex-end; }
+.table-actions .chart-note { margin: 0 auto 0 0; }
+th button { border: 0; background: none; padding: 0; color: inherit; font: inherit; text-align: left; }
+th[aria-sort] button { color: var(--forest); }
+.sort-indicator { margin-left: 5px; }
+.group-row td { background: var(--sage); padding: 9px 15px; font-weight: 600; }
+.group-row button { border: 0; background: none; padding: 2px 0; text-align: left; color: var(--ink); font: inherit; }
+.group-row small { display: inline; margin-left: 10px; }
+td.provider-cell { white-space: normal; min-width: 150px; max-width: 230px; }
+@media (max-width: 640px) {
+  .selection-panel { padding: 13px; }
+  .selection-controls { align-items: stretch; flex-direction: column; }
+  .table-toolbar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .table-actions .chart-note { flex-basis: 100%; }
+  .table-actions { justify-content: flex-start; }
+}
+.table-wrap { max-height: 70vh; }
+thead th { position: sticky; top: 0; z-index: 1; }

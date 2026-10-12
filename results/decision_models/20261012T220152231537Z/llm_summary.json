@@ -1,0 +1,185 @@
+[
+  {
+    "model": "typesafe/jev-1.13",
+    "endpoint": "https://llmfoundry.straivedemo.com/openrouter/alpha/decisions",
+    "samples": 30,
+    "successful": 30,
+    "failed": 0,
+    "accuracy": 1.0,
+    "macro_f1": 1.0,
+    "balanced_accuracy": 1.0,
+    "per_class": {
+      "negative": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 10
+      },
+      "neutral": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 10
+      },
+      "positive": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 10
+      }
+    },
+    "confusion_matrix": {
+      "negative": {
+        "negative": 10,
+        "neutral": 0,
+        "positive": 0,
+        "invalid": 0
+      },
+      "neutral": {
+        "negative": 0,
+        "neutral": 10,
+        "positive": 0,
+        "invalid": 0
+      },
+      "positive": {
+        "negative": 0,
+        "neutral": 0,
+        "positive": 10,
+        "invalid": 0
+      }
+    },
+    "confidence_source": "top_class_probability",
+    "mean_confidence": 0.972,
+    "confidence_samples": 30,
+    "mean_native_confidence": 0.9573333333333333,
+    "native_confidence_samples": 30,
+    "total_inference_seconds": 24.039609021001525,
+    "mean_latency_ms": 801.3203007000508,
+    "api_cost_usd": 0.000568974,
+    "known_api_cost_usd": 0.000568974,
+    "cost_samples": 30,
+    "missing_cost_samples": 0
+  },
+  {
+    "model": "cloudflare/clef",
+    "endpoint": "https://llmfoundry.straivedemo.com/openrouter/alpha/decisions",
+    "samples": 30,
+    "successful": 30,
+    "failed": 0,
+    "accuracy": 1.0,
+    "macro_f1": 1.0,
+    "balanced_accuracy": 1.0,
+    "per_class": {
+      "negative": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 10
+      },
+      "neutral": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 10
+      },
+      "positive": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 10
+      }
+    },
+    "confusion_matrix": {
+      "negative": {
+        "negative": 10,
+        "neutral": 0,
+        "positive": 0,
+        "invalid": 0
+      },
+      "neutral": {
+        "negative": 0,
+        "neutral": 10,
+        "positive": 0,
+        "invalid": 0
+      },
+      "positive": {
+        "negative": 0,
+        "neutral": 0,
+        "positive": 10,
+        "invalid": 0
+      }
+    },
+    "confidence_source": "top_class_probability",
+    "mean_confidence": 0.9147,
+    "confidence_samples": 30,
+    "mean_native_confidence": 0.8827766666666667,
+    "native_confidence_samples": 30,
+    "total_inference_seconds": 33.16122532299596,
+    "mean_latency_ms": 1105.3741774331986,
+    "api_cost_usd": 0.000496128,
+    "known_api_cost_usd": 0.000496128,
+    "cost_samples": 30,
+    "missing_cost_samples": 0
+  },
+  {
+    "model": "cloudflare/clef-flash",
+    "endpoint": "https://llmfoundry.straivedemo.com/openrouter/alpha/decisions",
+    "samples": 30,
+    "successful": 30,
+    "failed": 0,
+    "accuracy": 0.9333333333333333,
+    "macro_f1": 0.9326599326599326,
+    "balanced_accuracy": 0.9333333333333332,
+    "per_class": {
+      "negative": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 10
+      },
+      "neutral": {
+        "precision": 0.8333333333333334,
+        "recall": 1.0,
+        "f1": 0.9090909090909091,
+        "support": 10
+      },
+      "positive": {
+        "precision": 1.0,
+        "recall": 0.8,
+        "f1": 0.8888888888888888,
+        "support": 10
+      }
+    },
+    "confusion_matrix": {
+      "negative": {
+        "negative": 10,
+        "neutral": 0,
+        "positive": 0,
+        "invalid": 0
+      },
+      "neutral": {
+        "negative": 0,
+        "neutral": 10,
+        "positive": 0,
+        "invalid": 0
+      },
+      "positive": {
+        "negative": 0,
+        "neutral": 2,
+        "positive": 8,
+        "invalid": 0
+      }
+    },
+    "confidence_source": "top_class_probability",
+    "mean_confidence": 0.8925733333333333,
+    "confidence_samples": 30,
+    "mean_native_confidence": 0.8119633333333333,
+    "native_confidence_samples": 30,
+    "total_inference_seconds": 19.42927080800291,
+    "mean_latency_ms": 647.6423602667637,
+    "api_cost_usd": 0.000198733,
+    "known_api_cost_usd": 0.000198733,
+    "cost_samples": 30,
+    "missing_cost_samples": 0
+  }
+]

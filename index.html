@@ -26,7 +26,7 @@
         <p class="eyebrow">SAVED RESULTS · ONE SHARED TEST SET</p>
         <h1 id="page-title">Accuracy has a cost.<br><span>Compare both.</span></h1>
         <div class="intro-bottom">
-          <p class="lede">Explore LLM and deep learning sentiment models together, then see how LLM confidence compares with observed accuracy.</p>
+          <p class="lede">Explore LLM, deep learning and decision sentiment models together, then see how confidence compares with observed accuracy.</p>
           <button id="refresh" class="button secondary" type="button">Refresh results <span aria-hidden="true">↻</span></button>
         </div>
         <p id="load-status" class="load-status" role="status" aria-live="polite">Loading saved benchmark results…</p>
@@ -36,6 +36,18 @@
       <div id="content" hidden>
         <div id="stats" class="stats" aria-label="Benchmark overview"></div>
         <div id="summary" class="summary-panel"></div>
+        <section class="selection-panel" aria-label="Shared model-family filters">
+          <div class="selection-heading"><strong>Choose your comparison</strong><button id="reset-filters" class="button secondary" type="button">Reset all filters</button></div>
+          <div class="selection-controls">
+            <label class="control">Quick view<select id="family-preset"><option value="all">All models</option><option value="llm">LLM only</option><option value="dl">DL only</option><option value="decision">Decision models only</option><option value="custom">Custom selection</option></select></label>
+            <fieldset class="family-checks"><legend>Families shown in both graphs and the table</legend>
+              <label><input id="family-all" type="checkbox" checked> All</label>
+              <label><input id="family-llm" type="checkbox" checked> LLM</label>
+              <label><input id="family-dl" type="checkbox" checked> DL</label>
+              <label><input id="family-decision" type="checkbox" checked> Decision models</label>
+            </fieldset>
+          </div><p id="family-note" class="chart-note" role="status"></p>
+        </section>
         <div id="charts">
           <section class="chart-section" aria-labelledby="cost-title">
             <div class="section-heading">
@@ -53,7 +65,7 @@
               </div>
               <div id="rate-note" class="rate-note"></div>
               <div id="rate-sources" class="rate-sources"></div>
-              <p class="rate-explainer">DL prices apply the selected hourly rate to recorded DL timing. They are estimates, not cloud invoices. Changing the rate changes DL cost only; recorded LLM API charges stay fixed.</p>
+              <p class="rate-explainer">DL prices apply the selected hourly rate to recorded DL timing. They are estimates, not cloud invoices. Changing the rate changes DL cost only; recorded LLM and decision API charges stay fixed.</p>
             </div>
             <div class="chart-controls" aria-label="Cost chart options">
               <label class="control">Models<select id="cost-model"></select></label>
@@ -62,7 +74,7 @@
               <label class="control">Accuracy axis<select id="accuracy-range"><option value="full" selected>Full · 0–100%</option><option value="focus">Focus · observed range</option><option value="top">Top · 70–100%</option></select></label>
               <label class="checkbox-control"><input id="cost-labels" type="checkbox" checked> Model labels</label>
             </div>
-            <p class="shape-key"><span>● Low</span><span>◆ Medium</span><span>■ High</span><span>▲ DL</span><span class="muted">model = color</span></p>
+            <p class="shape-key"><span>● Low</span><span>◆ Medium</span><span>■ High</span><span>▲ DL</span><span>⬡ Decision</span><span class="muted">model = color</span></p>
             <div class="chart-card">
               <div id="cost-chart" class="chart-container" aria-label="Cost versus accuracy graph"></div>
               <div id="cost-legend" class="chart-legend" aria-label="Cost graph legend"></div>
@@ -74,33 +86,39 @@
             <div class="section-heading">
               <span class="section-number" aria-hidden="true">02</span>
               <h2 id="confidence-title">Mean Confidence vs Accuracy</h2>
-              <span class="direction-pill neutral-pill">LLM confidence</span>
+              <span class="direction-pill neutral-pill">Selected-label probability</span>
             </div>
-            <p class="section-caption">Each point compares one LLM run’s mean reported confidence with its accuracy across the same complete test set. The full view uses 0–100% on both axes. On the dashed diagonal, confidence matches accuracy. <strong>Bottom-right = overconfident. Top-left = underconfident.</strong></p>
+            <p class="section-caption">Each point compares one complete configuration’s mean selected-label confidence with its accuracy across the same complete test set. The full view uses 0–100% on both axes. LLMs report their own estimate; DL and decision models supply class probabilities. On the dashed diagonal, the mean matches accuracy. <strong>Bottom-right = overconfident. Top-left = underconfident.</strong></p>
             <div class="chart-controls" aria-label="Confidence chart options">
               <label class="control">Models<select id="confidence-model"></select></label>
               <label class="control">Reasoning<select id="confidence-reasoning"></select></label>
+              <label class="control">Confidence source<select id="confidence-source"><option value="all">All sources</option><option value="model_reported">LLM · self-reported</option><option value="classifier_probability">DL · class probability</option><option value="top_class_probability">Decision · class probability</option></select></label>
               <label class="control">Axis range<select id="confidence-range"><option value="full">Full · 0–100%</option><option value="focus">Detail · 80–100%</option></select></label>
               <label class="checkbox-control"><input id="confidence-labels" type="checkbox" checked> Model labels</label>
             </div>
-            <p class="shape-key"><span>● Low</span><span>◆ Medium</span><span>■ High</span><span class="muted">model = color</span></p>
+            <p class="shape-key"><span>● Low</span><span>◆ Medium</span><span>■ High</span><span>▲ DL</span><span>⬡ Decision</span><span class="muted">model = color</span></p>
             <div class="chart-card">
               <div id="confidence-chart" class="chart-container" aria-label="Mean confidence versus accuracy graph"></div>
               <div id="confidence-legend" class="chart-legend" aria-label="Confidence graph legend"></div>
             </div>
             <div id="confidence-detail" class="detail-panel" aria-live="polite">Select a model-level point to see its confidence and accuracy.</div>
             <div id="confidence-note" class="chart-note"></div>
-            <p class="chart-note">These aggregate means describe confidence and accuracy. They do not establish formal probability calibration or guarantee that an individual answer is correct.</p>
+            <p class="chart-note">These aggregate means describe confidence and accuracy. The decision API’s native confidence is a separate metric, shown in the table and tooltips. These means do not establish formal probability calibration or guarantee that an individual answer is correct.</p>
           </section>
         </div>
         <section id="results" class="results-section" aria-labelledby="results-title">
           <div class="section-heading compact-heading"><span class="section-number" aria-hidden="true">03</span><h2 id="results-title">Every run, in detail</h2></div>
           <div class="table-toolbar">
-            <label class="control">Show runs<select id="table-filter"><option value="all" selected>All runs</option><option value="complete">Complete runs</option><option value="excluded">Excluded runs</option></select></label>
-            <button id="export" class="button secondary" type="button">Export comparison CSV <span aria-hidden="true">↓</span></button>
+            <label class="control">Show runs<select id="table-filter"><option value="all">All runs</option><option value="complete">Complete runs</option><option value="excluded">Excluded runs</option></select></label>
+            <label class="control">Model<select id="table-model"></select></label>
+            <label class="control">Group by<select id="table-group"><option value="model">Model</option><option value="kind">Family</option><option value="provider">Provider / pin</option><option value="none">No grouping</option></select></label>
+            <label class="control">Sort configurations<select id="table-sort"></select></label>
+            <label class="control">Order<select id="table-direction"><option value="asc">Ascending</option><option value="desc">Descending</option></select></label>
+            <label class="control">Search models / providers<input id="table-search" type="search" placeholder="e.g. clef, T4, unpinned"></label>
           </div>
+          <div class="table-actions"><span id="table-note" class="chart-note" role="status"></span><button id="table-fold" class="button secondary" type="button">Collapse groups</button><button id="export" class="button secondary" type="button">Export filtered CSV <span aria-hidden="true">↓</span></button></div>
           <div class="table-wrap" tabindex="0" role="region" aria-label="Benchmark results table">
-            <table><thead><tr><th scope="col">Model</th><th scope="col">Family / Reasoning</th><th scope="col">Accuracy</th><th scope="col">Confidence</th><th scope="col">Cost</th><th scope="col">Mean latency</th><th scope="col">Coverage</th><th scope="col">Status</th></tr></thead><tbody id="result-table"></tbody></table>
+            <table><thead><tr><th scope="col" data-key="model"><button type="button" data-sort="model">Model<span class="sort-indicator" aria-hidden="true"></span></button></th><th scope="col" data-key="kind"><button type="button" data-sort="kind">Family / Mode<span class="sort-indicator" aria-hidden="true"></span></button></th><th scope="col" data-key="provider"><button type="button" data-sort="provider">Provider / pin<span class="sort-indicator" aria-hidden="true"></span></button></th><th scope="col" data-key="accuracy"><button type="button" data-sort="accuracy">Accuracy<span class="sort-indicator" aria-hidden="true"></span></button></th><th scope="col" data-key="macroF1"><button type="button" data-sort="macroF1">Macro F1 (%)<span class="sort-indicator" aria-hidden="true"></span></button></th><th scope="col" data-key="confidence"><button type="button" data-sort="confidence">Confidence<span class="sort-indicator" aria-hidden="true"></span></button></th><th scope="col" data-key="nativeConfidence"><button type="button" data-sort="nativeConfidence">Native confidence<span class="sort-indicator" aria-hidden="true"></span></button></th><th scope="col" data-key="pricedCost"><button type="button" data-sort="pricedCost">Cost<span class="sort-indicator" aria-hidden="true"></span></button></th><th scope="col" data-key="latencyMs"><button type="button" data-sort="latencyMs">Mean latency<span class="sort-indicator" aria-hidden="true"></span></button></th><th scope="col" data-key="coverage"><button type="button" data-sort="coverage">Coverage<span class="sort-indicator" aria-hidden="true"></span></button></th><th scope="col" data-key="complete"><button type="button" data-sort="complete">Status<span class="sort-indicator" aria-hidden="true"></span></button></th></tr></thead><tbody id="result-table"></tbody></table>
           </div>
           <details id="coverage" class="coverage-panel"><summary>Coverage and excluded runs</summary><p>Only complete runs matching the test data are eligible for the graphs. Missing, failed, partial, or incompatible runs are shown here for review.</p><ul id="excluded-list"></ul></details>
         </section>
@@ -109,8 +127,8 @@
           <h2 id="method-title">Measured results. Visible assumptions.</h2>
           <div class="method-grid">
             <div><h3>One test set</h3><p>Accuracy is the fraction of correct sentiment labels across the complete matching test set. Partial runs and runs with failed examples are excluded from the plots, so the comparison keeps the same denominator.</p></div>
-            <div><h3>Two kinds of cost</h3><p>LLM cost sums the retained prediction attempts. Earlier failed attempts stay in API logs and may have unknown charges. DL cost estimates use measured runtime and your chosen hourly compute rate. The timing basis and provider rate are explicit controls.</p></div>
-            <div><h3>Original files</h3><p>The explorer reads saved files in <code>results/</code>. It does not send prompts or make model API requests. The sources below identify the inputs and pricing references.</p></div>
+            <div><h3>Two kinds of cost</h3><p>LLM and decision cost sums the retained prediction attempts. Earlier failed attempts stay in API logs and may have unknown charges. DL cost estimates use measured runtime and your chosen hourly compute rate. The timing basis and provider rate are explicit controls.</p></div>
+            <div><h3>Original files</h3><p>The explorer reads saved files in <code>results/</code>. It does not send prompts or make model API requests. The sources below identify the inputs and pricing references. Grouping keeps each configuration separate and never averages or combines scores.</p></div>
           </div>
           <h3 class="sources-title">Data and pricing sources</h3>
           <ul id="sources" class="sources-list"></ul>

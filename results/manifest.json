@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-12T04:51:11.456143+00:00",
+  "ground_truth": "data/answer_key_30.csv",
+  "files": [
+    {
+      "path": "results/colab_dl/dl_evaluation.json",
+      "modified_at": "2026-10-11T23:08:20+00:00"
+    },
+    {
+      "path": "results/colab_dl/dl_predictions.jsonl",
+      "modified_at": "2026-10-11T23:06:52+00:00"
+    },
+    {
+      "path": "results/colab_dl/dl_summary.json",
+      "modified_at": "2026-10-11T23:06:52+00:00"
+    },
+    {
+      "path": "results/colab_dl/environment.json",
+      "modified_at": "2026-10-11T23:06:56+00:00"
+    },
+    {
+      "path": "results/llm_predictions.jsonl",
+      "modified_at": "2026-10-12T04:43:59.199085+00:00"
+    },
+    {
+      "path": "results/llm_predictions_low.jsonl",
+      "modified_at": "2026-10-12T04:18:14.212884+00:00"
+    },
+    {
+      "path": "results/llm_predictions_medium.jsonl",
+      "modified_at": "2026-10-12T04:35:49.111802+00:00"
+    },
+    {
+      "path": "results/llm_summary.json",
+      "modified_at": "2026-10-12T04:43:59.202377+00:00"
+    },
+    {
+      "path": "results/llm_summary_low.json",
+      "modified_at": "2026-10-12T04:18:14.216993+00:00"
+    },
+    {
+      "path": "results/llm_summary_medium.json",
+      "modified_at": "2026-10-12T04:35:49.114804+00:00"
+    }
+  ]
+}

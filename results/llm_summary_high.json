@@ -6,12 +6,12 @@
     "reasoning_effort": "high",
     "accuracy": 0.9333,
     "macro_f1": 0.9327,
-    "model_run_wall_seconds": 64.422,
+    "model_run_wall_seconds": 70.5757,
     "samples": 30,
     "successful": 30,
     "failed": 0,
-    "total_inference_seconds": 64.4109,
-    "mean_latency_ms": 2147.03,
+    "total_inference_seconds": 70.5644,
+    "mean_latency_ms": 2352.15,
     "prompt_tokens": 2217,
     "completion_tokens": 29,
     "total_tokens": 10709
@@ -23,15 +23,15 @@
     "reasoning_effort": "high",
     "accuracy": 0.9667,
     "macro_f1": 0.9666,
-    "model_run_wall_seconds": 128.4341,
+    "model_run_wall_seconds": 107.2141,
     "samples": 30,
     "successful": 30,
     "failed": 0,
-    "total_inference_seconds": 128.4214,
-    "mean_latency_ms": 4280.71,
+    "total_inference_seconds": 107.2027,
+    "mean_latency_ms": 3573.42,
     "prompt_tokens": 3731,
-    "completion_tokens": 2023,
-    "total_tokens": 5754
+    "completion_tokens": 2078,
+    "total_tokens": 5809
   },
   {
     "model": "gemini-3.8-flash",
@@ -40,14 +40,14 @@
     "reasoning_effort": "high",
     "accuracy": 1.0,
     "macro_f1": 1.0,
-    "model_run_wall_seconds": 258.0164,
+    "model_run_wall_seconds": 110.2469,
     "samples": 30,
     "successful": 30,
     "failed": 0,
-    "total_inference_seconds": 258.0049,
-    "mean_latency_ms": 8600.16,
+    "total_inference_seconds": 110.236,
+    "mean_latency_ms": 3674.53,
     "prompt_tokens": 2217,
-    "completion_tokens": 30,
-    "total_tokens": 9841
+    "completion_tokens": 28,
+    "total_tokens": 10243
   }
 ]

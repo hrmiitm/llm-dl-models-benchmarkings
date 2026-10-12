@@ -21,7 +21,7 @@ function syncControls(){
   $('#model-filter').value=state.model;for(const e of document.querySelectorAll('input[name=effort]'))e.checked=state.efforts.includes(e.value);
   for(const [id,key]of [['x-metric','x'],['y-metric','y'],['x-scale','xScale'],['y-scale','yScale'],['dl-rate','dlRate'],['cost-mode','costMode']])$('#'+id).value=state[key];
   $('#complete-only').checked=state.completeOnly;$('#point-labels').checked=state.labels;
-  $('#custom-control').hidden=state.dlRate!=='custom';$('#custom-rate').value=state.customRate??'';
+  $('#custom-control').hidden=state.dlRate!=='custom';if(document.activeElement!==$('#custom-rate'))$('#custom-rate').value=state.customRate??'';
   $('#view-levels').setAttribute('aria-pressed',state.view==='levels');$('#view-overall').setAttribute('aria-pressed',state.view==='overall');
 }
 const familyFilter=c=>state.model==='all'||state.model==='family:'+c.family||state.model===c.model;
@@ -84,7 +84,7 @@ function renderHeadlines(configs){
   const fastest=complete.filter(c=>finite(c.mean_latency)).sort((a,b)=>a.mean_latency-b.mean_latency)[0];
   const cheapest=complete.filter(c=>finite(c.cost)).sort((a,b)=>a.cost-b.cost)[0];
   const card=(title,value,note)=>{const d=node('div',null,{class:'headline'});d.append(node('span',title),node('strong',value),node('small',note));return d;};
-  $('#headlines').replaceChildren(card(`BEST ${METRICS[state.y].toUpperCase()}`,pct(best),winners.length?[...new Set(winners.map(c=>c.name))].join(' · '):'No complete comparable runs'),card('LOWEST RECORDED LATENCY',duration(fastest?.mean_latency),fastest?`${fastest.name} · ${level(fastest)}`:'No recorded latency'),card('LOWEST SAME-RUN COST',money(cheapest?.cost),cheapest?`${cheapest.name} · ${cheapest.cost_kind}`:'No known costs for complete runs'));
+  $('#headlines').replaceChildren(card(state.y==='confidence'?'HIGHEST REPORTED CONFIDENCE':`BEST ${METRICS[state.y].toUpperCase()}`,pct(best),winners.length?[...new Set(winners.map(c=>c.name))].join(' · '):'No complete comparable runs'),card('LOWEST RECORDED LATENCY',duration(fastest?.mean_latency),fastest?`${fastest.name} · ${level(fastest)}`:'No recorded latency'),card('LOWEST SAME-RUN COST',money(cheapest?.cost),cheapest?`${cheapest.name} · ${cheapest.cost_kind}`:'No known costs for complete runs'));
 }
 
 function pointDetails(c){
@@ -101,7 +101,8 @@ function renderChart(configs){
   const eligible=configs.filter(c=>(!state.completeOnly||c.complete)&&finite(c[state.x])&&finite(c[state.y])&&(state.xScale!=='log'||c[state.x]>0)&&(state.yScale!=='log'||c[state.y]>0));
   const excluded=configs.length-eligible.length;
   $('#chart-heading').textContent=`${state.x==='cost'?'Cost':state.x==='mean_latency'?'Latency':state.x==='wall_seconds'?'Wall time':'Inference time'} vs ${METRICS[state.y]}`;
-  $('#chart-intro').textContent=`Left = ${state.x==='cost'?'cheaper':'faster'}. Up = ${lowerIsBetter()?'fewer errors':'better '+METRICS[state.y].toLowerCase()}. ${state.view==='levels'?'Thin lines connect Low → Medium → High when recorded non-effort settings and sentence sets match.':'Each LLM point averages the selected available reasoning levels. DL remains a single GPU configuration.'}`;
+  $('#direction').textContent=state.y==='confidence'?'↑ More confident, not more accurate':'↖ Top-left is best';
+  $('#chart-intro').textContent=`Left = ${state.x==='cost'?'cheaper':'faster'}. Up = ${state.y==='confidence'?'higher reported confidence (not necessarily more accurate)':lowerIsBetter()?'fewer errors':'better '+METRICS[state.y].toLowerCase()}. ${state.view==='levels'?'Thin lines connect Low → Medium → High when recorded non-effort settings and sentence sets match.':'Each LLM point averages the selected available reasoning levels. DL remains a single GPU configuration.'}`;
   $('#symbols').textContent=state.view==='levels'?'● Low   ◆ Medium   ■ High   ▲ DL · model = color':'● LLM overall   ▲ DL · model = color';
   $('#chart-caption').textContent=`${eligible.length} plotted configurations; ${excluded} excluded by coverage, missing values or log-axis limits. ${state.xScale==='log'?'Log spacing compares ratios; zero values are omitted.':'Linear spacing compares absolute differences.'} ${state.view==='overall'?'Overall cost/time is the mean per same-size run, not the sum of repeated runs.':''}`;
   if(!eligible.length){root.append(node('div','No points match this view. Try changing the metric, cost source, axis scale, or filters.',{class:'empty-chart'}));renderLegend();return;}
@@ -113,7 +114,7 @@ function renderChart(configs){
   const x=v=>L+((state.xScale==='log'?Math.log10(v):v)-lo)/(hi-lo)*PW;
   const y=v=>{const t=state.yScale==='log'?(Math.log10(v)-yLo)/(yHi-yLo):v;return lowerIsBetter()?T+t*PH:B-t*PH;};
   const svg=svgNode('svg',{viewBox:`0 0 ${W} ${H}`,role:'img','aria-label':`${XMETRICS[state.x]} versus ${METRICS[state.y]}, ${eligible.length} points`,'data-point-count':eligible.length,'data-x-scale':state.xScale});
-  svg.append(svgNode('text',{x:L,y:27,class:'axis-title'},`${METRICS[state.y]} (%)`),svgNode('text',{x:L,y:45,class:'axis-guide'},`↑ ${lowerIsBetter()?'LOWER':'HIGHER'} IS BETTER`));
+  svg.append(svgNode('text',{x:L,y:27,class:'axis-title'},`${METRICS[state.y]} (%)`),svgNode('text',{x:L,y:45,class:'axis-guide'},state.y==='confidence'?'↑ MORE CONFIDENT':`↑ ${lowerIsBetter()?'LOWER':'HIGHER'} IS BETTER`));
   for(let i=0;i<5;i++){
     const value=state.yScale==='log'?10**(yLo+(yHi-yLo)*i/4):i/4,py=y(value);
     svg.append(svgNode('line',{x1:L,x2:W-R,y1:py,y2:py,class:'grid-line'}),svgNode('text',{x:L-9,y:py+4,'text-anchor':'end',class:'axis-text'},`${(value*100).toFixed(state.yScale==='log'?1:0)}`));
@@ -123,6 +124,7 @@ function renderChart(configs){
   }
   svg.append(svgNode('text',{x:L+PW/2,y:H-18,'text-anchor':'middle',class:'axis-title'},W<600?(state.x==='cost'?'Cost / run, USD →':state.x==='mean_latency'?'Mean latency, seconds →':XMETRICS[state.x]):XMETRICS[state.x]));
   if(state.view==='levels')for(const model of new Set(eligible.filter(c=>!c.isDL).map(c=>c.model))){const levels=eligible.filter(c=>c.model===model);for(let i=0;i<2;i++){const a=levels.find(c=>c.effort===EFFORTS[i]),b=levels.find(c=>c.effort===EFFORTS[i+1]);if(a&&b&&a.signature===b.signature)svg.append(svgNode('path',{d:`M${x(a[state.x])},${y(a[state.y])}L${x(b[state.x])},${y(b[state.y])}`,class:'connector',stroke:color(a)}));}}
+  const occupiedLabels=[];
   for(const c of eligible){
     const px=x(c[state.x]),py=y(c[state.y]);let mark;
     if(c.isDL)mark=svgNode('polygon',{points:`${px},${py-7} ${px-6.5},${py+5.5} ${px+6.5},${py+5.5}`});
@@ -133,7 +135,19 @@ function renderChart(configs){
     mark.append(svgNode('title',{},pointAria(c)));
     for(const event of ['pointerenter','focus','click'])mark.addEventListener(event,()=>pointDetails(c));
     mark.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pointDetails(c);}});svg.append(mark);
-    if(state.labels&&(c.isDL||((c.effort==='high'||c.effort==='overall')&&W>=620))){const left=px>W-180;svg.append(svgNode('text',{x:px+(left?-9:9),y:py+(py>B-25?-13:17),'text-anchor':left?'end':'start',class:'point-label'},c.name));}
+    if(state.labels&&(c.isDL||((c.effort==='high'||c.effort==='overall')&&W>=620))){
+      const preferLeft=px>W-180, textWidth=c.name.length*6.2;
+      const options=[17,-13,31,-27,45].flatMap(dy=>[preferLeft,!preferLeft].map(left=>({left,dy})));
+      let placement;
+      for(const candidate of options){
+        const tx=px+(candidate.left?-9:9),ty=py+candidate.dy;
+        const box={left:candidate.left?tx-textWidth:tx,right:candidate.left?tx:tx+textWidth,top:ty-12,bottom:ty+2};
+        if(box.left<L||box.right>W-R||box.top<T||box.bottom>B)continue;
+        if(occupiedLabels.some(b=>box.left<b.right+5&&box.right>b.left-5&&box.top<b.bottom+3&&box.bottom>b.top-3))continue;
+        placement={...candidate,tx,ty,box};break;
+      }
+      if(placement){occupiedLabels.push(placement.box);svg.append(svgNode('text',{x:placement.tx,y:placement.ty,'text-anchor':placement.left?'end':'start',class:'point-label'},c.name));}
+    }
   }
   root.append(svg);renderLegend();
 }
@@ -151,7 +165,7 @@ function renderReasoning(){
   if(!root.children.length)root.append(node('p','Select an LLM to compare its reasoning levels.',{class:'reason-empty'}));
 }
 function sortConfigs(configs){return [...configs].sort((a,b)=>{const av=a[state.sort],bv=b[state.sort];if(av==null)return bv==null?0:1;if(bv==null)return-1;const compare=typeof av==='string'?av.localeCompare(bv):av-bv;return state.descending?-compare:compare;});}
-function renderTable(configs){const root=$('#table-body');root.replaceChildren();for(const c of sortConfigs(configs)){
+function renderTable(configs){for(const button of document.querySelectorAll('[data-sort]'))button.parentElement.setAttribute('aria-sort',button.dataset.sort===state.sort?(state.descending?'descending':'ascending'):'none');const root=$('#table-body');root.replaceChildren();for(const c of sortConfigs(configs)){
   const tr=node('tr',null,{style:`--color:${color(c)}`,class:c.complete?'':'partial'}),name=node('td',null);name.append(node('strong',c.name),node('span',c.isDL?'DL':'LLM',{class:'tag'}),node('small',c.model));tr.append(name);
   tr.append(node('td',level(c)),node('td',pct(c.accuracy)),node('td',pct(c.macro_f1)),node('td',duration(c.mean_latency)));
   const cost=node('td',null);cost.append(document.createTextNode(money(c.cost)),node('small',c.cost_kind));cost.title=c.cost_note;tr.append(cost);
@@ -161,7 +175,7 @@ function renderTable(configs){const root=$('#table-body');root.replaceChildren()
 }if(!configs.length){const tr=node('tr',null);tr.append(node('td','No configurations selected.',{colspan:9}));root.append(tr);}}
 function renderMatrix(){const configs=selected(),c=configs.find(c=>c.id===state.inspect)??configs[0];if(c){state.inspect=c.id;$('#inspect').value=c.id;}
   const root=$('#confusion');root.replaceChildren();if(!c?.matrix){root.append(node('div','Individual predictions are required for this breakdown.',{class:'empty'}));$('#matrix-note').textContent='';return;}
-  $('#matrix-note').textContent=`${c.name} · ${level(c)} · ${c.effort==='overall'?`${c.attempts} repeated predictions across ${c.levels.length} selected levels (${c.samples} unique sentences).`:`${c.samples} sentences. Accuracy ${pct(c.accuracy)}.`}`;
+  $('#matrix-note').textContent=`${c.name} · ${level(c)} · ${c.effort==='overall'?`${c.attempts} repeated predictions across ${c.levels.length} selected levels (${c.samples} unique sentences). Counts are pooled here; chart metrics are means across runs.`:`${c.samples} sentences. Accuracy ${pct(c.accuracy)}.`}`;
   const table=node('table',null),thead=node('thead',null),header=node('tr',null);header.append(node('th','Actual ↓ / Predicted →',{scope:'col'}));[...LABELS,'No answer'].forEach(label=>header.append(node('th',label,{scope:'col'})));thead.append(header);table.append(thead);const body=node('tbody',null),max=Math.max(1,...c.matrix.flat());
   c.matrix.forEach((values,i)=>{const row=node('tr',null);row.append(node('th',LABELS[i],{scope:'row'}));values.forEach((v,j)=>{const cell=node('td',v);cell.style.background=`color-mix(in srgb, ${j===i?'var(--accent)':'#b46c4b'} ${Math.round(v/max*32)}%, var(--surface))`;row.append(cell);});body.append(row);});table.append(body);root.append(table);
 }
@@ -173,6 +187,7 @@ function renderSources(){
 }
 function render(){if(!data)return;
   const configs=selected();syncControls();renderPricing();renderHeadlines(configs);
+  $('#point-detail').textContent='Hover, tap or keyboard-focus a point to inspect its score, timing and cost source.';
   $('#scope-note').textContent=`${configs.length} configurations shown · ${data.truth.size} unique sentences · ${state.view==='overall'?'LLM means across selected available levels; GPU models keep their single run.':'Low / medium / high are separate runs. GPU models have one configuration.'} Legend buttons toggle model visibility.`;
   const allNotes=[...loadWarnings,...data.warnings];if(configs.some(c=>c.cost_kind==='LLM token estimate'))allNotes.push('LLM billed charges are absent. Cost estimates include output/thinking tokens and assume uncached input, without Foundry markup or discounts.');if(configs.some(c=>!finite(c.cost)))allNotes.push('Some costs are unknown; those configurations remain in the table and can be compared on the latency axis.');
   $('#notices').hidden=!allNotes.length;$('#notice-list').replaceChildren(...[...new Set(allNotes)].map(note=>node('li',note)));
@@ -191,7 +206,7 @@ for(const [id,key]of [['complete-only','completeOnly'],['point-labels','labels']
 for(const view of ['levels','overall'])$('#view-'+view).addEventListener('click',()=>{state.view=view;state.inspect=null;render();writeState();});
 $('#inspect').addEventListener('change',event=>{state.inspect=event.target.value;renderMatrix();});
 for(const button of document.querySelectorAll('[data-sort]'))button.addEventListener('click',()=>{const field=button.dataset.sort;state.descending=state.sort===field?!state.descending:true;state.sort=field;renderTable(selected());});
-$('#export').addEventListener('click',()=>{const columns=['model','family','effort','samples','successful','failed','accuracy','macro_f1','balanced_accuracy','precision','recall','mean_latency','total_inference','cost','cost_kind','prompt_tokens','completion_tokens','total_tokens'];const escape=value=>'"'+String(value??'').replaceAll('"','""')+'"';const rows=[columns,...selected().map(c=>columns.map(key=>c[key]))];const url=URL.createObjectURL(new Blob([rows.map(r=>r.map(escape).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'}));const a=node('a','',{href:url,download:`sentiment-benchmark-${state.view}.csv`});document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);});
+$('#export').addEventListener('click',()=>{const columns=['model','family','effort','samples','attempts','configurations','successful','failed','accuracy','macro_f1','balanced_accuracy','precision','recall','mean_latency','total_inference','cost','cost_kind','prompt_tokens','completion_tokens','total_tokens'];const escape=value=>'"'+String(value??'').replaceAll('"','""')+'"';const rows=[columns,...sortConfigs(selected()).map(c=>columns.map(key=>c[key]))];const url=URL.createObjectURL(new Blob([rows.map(r=>r.map(escape).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'}));const a=node('a','',{href:url,download:`sentiment-benchmark-${state.view}.csv`});document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);});
 function themeLabel(){$('#theme').textContent=document.documentElement.dataset.theme==='dark'?'Light mode':'Dark mode';}
 $('#theme').addEventListener('click',()=>{const dark=document.documentElement.dataset.theme!=='dark';document.documentElement.dataset.theme=dark?'dark':'light';try{localStorage.setItem('sentiment-theme',dark?'dark':'light');}catch{}themeLabel();});themeLabel();
 let resizeTimer;window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>{if(data)renderChart(selected());},100);});

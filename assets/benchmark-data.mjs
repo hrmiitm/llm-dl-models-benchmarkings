@@ -2,6 +2,11 @@ export const EFFORTS = ['low', 'medium', 'high'];
 export const LABELS = ['negative', 'neutral', 'positive'];
 export const finite = value => typeof value === 'number' && Number.isFinite(value);
 const validCount = n => finite(n) && n >= 0;
+const probability = n => finite(n) && n >= 0 && n <= 1;
+function savedCharge(row) {
+  if(!row || (validCount(row.api_calls_without_cost) && row.api_calls_without_cost > 0)) return null;
+  return [row.api_cost_usd,row.cost_usd,row.total_cost_usd,row.usage?.cost].find(validCount) ?? null;
+}
 const mean = values => values.length ? values.reduce((a,b) => a+b,0)/values.length : null;
 const sumIfKnown = values => values.length && values.every(validCount) ? values.reduce((a,b)=>a+b,0) : null;
 export const nameOf = model => ({'yiyanghkust/finbert-tone':'FinBERT Tone', 'cardiffnlp/twitter-roberta-base-sentiment-latest':'Twitter RoBERTa', 'MoritzLaurer/deberta-v3-large-zeroshot-v2.0':'DeBERTa Zero-shot', 'facebook/bart-large-mnli':'BART MNLI', 'gemini-3.1-flash-lite':'Gemini 3.1 Flash Lite', 'gemini-3.8-flash':'Gemini 3.8 Flash', 'qwen/qwen3.8-27b':'Qwen 3.8 27B'}[model] ?? model);
@@ -52,11 +57,12 @@ export function scorePredictions(records, truth) {
     return {label,support,precision,recall,f1:precision+recall?2*precision*recall/(precision+recall):0};
   });
   const n=truth.size;
+  const confidences=rows.filter(r=>r.valid && probability(r.raw?.confidence)).map(r=>r.raw.confidence);
   return {rows,matrix,perClass,samples:n,successful,failed:n-successful,
     accuracy:correct/n, macro_f1:mean(perClass.map(c=>c.f1)), precision:mean(perClass.map(c=>c.precision)),
     recall:mean(perClass.map(c=>c.recall)), balanced_accuracy:mean(perClass.filter(c=>c.support).map(c=>c.recall)),
     error_rate:1-correct/n, success_rate:successful/n,
-    confidence:mean(rows.filter(r=>r.valid && finite(r.raw?.confidence)).map(r=>r.raw.confidence)),
+    confidence:confidences.length===n?mean(confidences):null,confidence_samples:confidences.length,
     complete:byId.size===n && records.length===n && successful===n && !warnings.length, warnings};
 }
 
@@ -118,7 +124,8 @@ export function prepareData(loaded, truthRows) {
         wall_seconds:seed.model_run_wall_seconds??null,load_seconds:seed.load_seconds??null,warmup_seconds:seed.warmup_seconds??null,
         prompt_tokens:sumToken('prompt_tokens'),completion_tokens:sumToken('completion_tokens'),total_tokens:sumToken('total_tokens'),
         hourly_usd:validCount(seed.hourly_cost_usd)?seed.hourly_cost_usd:null,
-        saved_cost:sumIfKnown(matched.map(r=>r.cost_usd??r.usage?.cost))??(validCount(seed.cost_usd)?seed.cost_usd:validCount(seed.total_cost_usd)?seed.total_cost_usd:null),
+        saved_cost:validCount(seed.api_calls_without_cost)&&seed.api_calls_without_cost>0?null:sumIfKnown(matched.map(savedCharge))??savedCharge(seed),
+        unknown_api_attempts:validCount(seed.api_calls_without_cost)?seed.api_calls_without_cost:matched.reduce((n,r)=>n+(validCount(r.api_calls_without_cost)?r.api_calls_without_cost:0),0),
         sources:run.files.map(f=>f.path),prediction_source:run.files.find(f=>fileInfo(f.path)?.type==='predictions')?.path??null,
         modified_at:run.files.reduce((newest,f)=>Date.parse(f.modified_at??0)>Date.parse(newest)?f.modified_at:newest,'1970-01-01T00:00:00Z')};
       c.signature=JSON.stringify([c.endpoint,c.temperature,c.complete,metrics.rows.map(r=>r.id).sort()]);
@@ -152,11 +159,12 @@ export function priceConfig(config, pricing, state) {
   const rate=pricing.llm_rates?.[c.model];
   if(!rate || (rate.endpoint_match && !c.endpoint.includes(rate.endpoint_match))) {c.cost_note='No matching endpoint price in results/pricing.json.';return c;}
   if(rate.valid_through && new Date().toISOString().slice(0,10)>rate.valid_through) {c.cost_note='Price reference expired; update results/pricing.json.';return c;}
-  const output=validCount(c.total_tokens)&&validCount(c.prompt_tokens)&&c.total_tokens>=c.prompt_tokens?c.total_tokens-c.prompt_tokens:c.completion_tokens;
+  if(validCount(c.total_tokens)&&validCount(c.prompt_tokens)&&c.total_tokens<c.prompt_tokens) {c.cost_note='Recorded total tokens are less than input tokens.';return c;}
+  const output=validCount(c.total_tokens)&&validCount(c.prompt_tokens)?c.total_tokens-c.prompt_tokens:c.completion_tokens;
   if(validCount(c.prompt_tokens)&&validCount(output)&&validCount(rate.input_usd_per_million)&&validCount(rate.output_usd_per_million)) {
     c.cost=(c.prompt_tokens*rate.input_usd_per_million+output*rate.output_usd_per_million)/1e6;
     c.cost_kind='LLM token estimate';c.billed_output_tokens=output;
-    c.cost_note=`Uncached input + output/thinking tokens, standard paid rate checked ${pricing.checked_on}. Excludes proxy fees and discounts.`;
+    c.cost_note=`Uncached input + output/thinking tokens, standard paid rate checked ${pricing.checked_on}. Excludes proxy fees, discounts and any unreported retry usage.${c.unknown_api_attempts?' Some API attempts have unknown charges.':''}`;
   } else c.cost_note='Token totals are missing or inconsistent.';
   return c;
 }

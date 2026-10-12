@@ -1,0 +1,181 @@
+{
+  "started_at_utc": "2026-10-12T20:54:25.980905+00:00",
+  "python": "3.13.15",
+  "platform": "Linux-6.6.122+-x86_64-with-glibc2.39",
+  "git_revision": "e70b170031c78edf4eb5f0334206b200027d87b5",
+  "source_sha256": {
+    "benchmark_common.py": "f3a7cb0f7291ba12a9b0c8e47bd6ae2174053b41ac9e274a952f1442efd65caa",
+    "run_llm_models.py": "ca603186f20e329af6166445c733ca30bc300e446aac8ddedee2c023e89c252e",
+    "run_dl_models.py": "1c136e6113754cdfb3f65b7937121039077fdcef88d557c49f62e1bd96137833",
+    "data_prepare.py": "9f903f63913ca66f413f14ffe7371101305ef4ffaf627241e472777144534400"
+  },
+  "arguments": {
+    "input": "/content/llm-dl-models-benchmarkings/data/test_30.csv",
+    "answer_key": "/content/llm-dl-models-benchmarkings/data/answer_key_30.csv",
+    "output_dir": "/content/colab_dl_new",
+    "archive": "/content/colab_dl_new.zip",
+    "warmup": 3,
+    "models": null,
+    "list_models": false,
+    "device": "cuda",
+    "require_t4": true,
+    "dtype": "auto",
+    "limit": null,
+    "smoke": false,
+    "seed": 42,
+    "max_length": 512,
+    "revision": "main"
+  },
+  "inputs": {
+    "/content/llm-dl-models-benchmarkings/data/test_30.csv": "d6b2dfe616a6bb42ee3d20fed88339855ab5e4bf50fd2907e00b5e274fa63442",
+    "/content/llm-dl-models-benchmarkings/data/answer_key_30.csv": "dfe4c6525663fc44858b74a9348e2206c04feec16c07c90fe78f651f3c89e3aa"
+  },
+  "gpu": "Tesla T4",
+  "torch": "2.11.0+cu130",
+  "transformers": "5.18.0",
+  "cuda": "13.0",
+  "dtype": "torch.float16",
+  "model_config": [
+    {
+      "name": "finbert_tone",
+      "model": "yiyanghkust/finbert-tone",
+      "task": "text-classification",
+      "family": "BERT",
+      "mapping": {
+        "label_0": "neutral",
+        "label_1": "positive",
+        "label_2": "negative"
+      },
+      "task_training_data": "10,000 manually annotated analyst-report sentences",
+      "training_source": "https://huggingface.co/yiyanghkust/finbert-tone"
+    },
+    {
+      "name": "twitter_roberta",
+      "model": "cardiffnlp/twitter-roberta-base-sentiment-latest",
+      "task": "text-classification",
+      "family": "RoBERTa",
+      "mapping": {
+        "label_0": "negative",
+        "label_1": "neutral",
+        "label_2": "positive"
+      },
+      "task_training_data": "TweetEval sentiment",
+      "training_source": "https://huggingface.co/cardiffnlp/twitter-roberta-base-sentiment-latest"
+    },
+    {
+      "name": "twitter_xlm_roberta",
+      "model": "cardiffnlp/twitter-xlm-roberta-base-sentiment",
+      "task": "text-classification",
+      "family": "XLM-R",
+      "mapping": {
+        "label_0": "negative",
+        "label_1": "neutral",
+        "label_2": "positive"
+      },
+      "task_training_data": "Twitter sentiment in eight languages",
+      "training_source": "https://huggingface.co/cardiffnlp/twitter-xlm-roberta-base-sentiment"
+    },
+    {
+      "name": "distilbert_multilingual",
+      "model": "lxyuan/distilbert-base-multilingual-cased-sentiments-student",
+      "task": "text-classification",
+      "family": "DistilBERT",
+      "mapping": {},
+      "task_training_data": "Multilingual Sentiments; teacher distillation",
+      "training_source": "https://huggingface.co/lxyuan/distilbert-base-multilingual-cased-sentiments-student"
+    },
+    {
+      "name": "deberta_base_zeroshot_c",
+      "model": "MoritzLaurer/deberta-v3-base-zeroshot-v2.0-c",
+      "task": "zero-shot-classification",
+      "family": "DeBERTa-v3",
+      "mapping": {},
+      "task_training_data": "Synthetic Mixtral data + MNLI + FEVER-NLI",
+      "training_source": "https://huggingface.co/MoritzLaurer/deberta-v3-base-zeroshot-v2.0-c"
+    },
+    {
+      "name": "deberta_large_zeroshot_c",
+      "model": "MoritzLaurer/deberta-v3-large-zeroshot-v2.0-c",
+      "task": "zero-shot-classification",
+      "family": "DeBERTa-v3",
+      "mapping": {},
+      "task_training_data": "Synthetic Mixtral data + MNLI + FEVER-NLI",
+      "training_source": "https://huggingface.co/MoritzLaurer/deberta-v3-large-zeroshot-v2.0-c"
+    },
+    {
+      "name": "distilbert_zeroshot",
+      "model": "typeform/distilbert-base-uncased-mnli",
+      "task": "zero-shot-classification",
+      "family": "DistilBERT",
+      "mapping": {},
+      "task_training_data": "MultiNLI",
+      "training_source": "https://huggingface.co/typeform/distilbert-base-uncased-mnli"
+    },
+    {
+      "name": "mobilebert_zeroshot",
+      "model": "typeform/mobilebert-uncased-mnli",
+      "task": "zero-shot-classification",
+      "family": "MobileBERT",
+      "mapping": {},
+      "task_training_data": "MultiNLI",
+      "training_source": "https://huggingface.co/typeform/mobilebert-uncased-mnli"
+    },
+    {
+      "name": "deberta_mnli",
+      "model": "MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+      "task": "zero-shot-classification",
+      "family": "DeBERTa-v3",
+      "mapping": {},
+      "task_training_data": "MultiNLI + FEVER-NLI + ANLI",
+      "training_source": "https://huggingface.co/MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli"
+    },
+    {
+      "name": "roberta_large_mnli",
+      "model": "FacebookAI/roberta-large-mnli",
+      "task": "zero-shot-classification",
+      "family": "RoBERTa",
+      "mapping": {},
+      "task_training_data": "MultiNLI",
+      "training_source": "https://huggingface.co/FacebookAI/roberta-large-mnli"
+    },
+    {
+      "name": "roberta_base_zeroshot_c",
+      "model": "MoritzLaurer/roberta-base-zeroshot-v2.0-c",
+      "task": "zero-shot-classification",
+      "family": "RoBERTa",
+      "mapping": {},
+      "task_training_data": "Synthetic Mixtral data + MNLI + FEVER-NLI",
+      "training_source": "https://huggingface.co/MoritzLaurer/roberta-base-zeroshot-v2.0-c"
+    },
+    {
+      "name": "bge_m3_zeroshot_c",
+      "model": "MoritzLaurer/bge-m3-zeroshot-v2.0-c",
+      "task": "zero-shot-classification",
+      "family": "BGE-M3 / XLM-R",
+      "mapping": {},
+      "task_training_data": "Synthetic Mixtral data + MNLI + FEVER-NLI",
+      "training_source": "https://huggingface.co/MoritzLaurer/bge-m3-zeroshot-v2.0-c"
+    },
+    {
+      "name": "bart_mnli",
+      "model": "facebook/bart-large-mnli",
+      "task": "zero-shot-classification",
+      "family": "BART",
+      "mapping": {},
+      "task_training_data": "MultiNLI",
+      "training_source": "https://huggingface.co/facebook/bart-large-mnli"
+    }
+  ],
+  "dataset_policy": "Exclude documented Financial PhraseBank task training; pretraining exposure cannot be guaranteed absent",
+  "training_data_checked_on": "2026-10-13",
+  "gpu_memory_bytes": 15637086208,
+  "peak_gpu_memory_metric": "torch.cuda.max_memory_allocated; includes resident model, excludes reserved and other-process memory",
+  "hypothesis_template": "The financial sentiment of this statement is {}.",
+  "batch_size": 1,
+  "timing": "synchronized end-to-end pipeline per sentence, including tokenization, transfers and postprocessing; excludes load and warmup",
+  "warmup_iterations": 3,
+  "gpu_compute_capability": [
+    7,
+    5
+  ]
+}

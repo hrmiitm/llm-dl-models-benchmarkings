@@ -1,0 +1,847 @@
+[
+  {
+    "model": "yiyanghkust/finbert-tone",
+    "model_alias": "finbert_tone",
+    "model_revision": "4921590d3c0c3832c0efea24c8381ce0bda7844b",
+    "family": "BERT",
+    "task_training_data": "10,000 manually annotated analyst-report sentences",
+    "training_source": "https://huggingface.co/yiyanghkust/finbert-tone",
+    "device": "Tesla T4",
+    "dtype": "torch.float16",
+    "samples": 30,
+    "successful": 30,
+    "failed": 0,
+    "accuracy": 0.9,
+    "macro_f1": 0.8976982097186701,
+    "balanced_accuracy": 0.9,
+    "per_class": {
+      "negative": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 10
+      },
+      "neutral": {
+        "precision": 0.7692307692307693,
+        "recall": 1.0,
+        "f1": 0.8695652173913043,
+        "support": 10
+      },
+      "positive": {
+        "precision": 1.0,
+        "recall": 0.7,
+        "f1": 0.8235294117647058,
+        "support": 10
+      }
+    },
+    "confusion_matrix": {
+      "negative": {
+        "negative": 10,
+        "neutral": 0,
+        "positive": 0,
+        "invalid": 0
+      },
+      "neutral": {
+        "negative": 0,
+        "neutral": 10,
+        "positive": 0,
+        "invalid": 0
+      },
+      "positive": {
+        "negative": 0,
+        "neutral": 3,
+        "positive": 7,
+        "invalid": 0
+      }
+    },
+    "load_seconds": 3.1388879920000363,
+    "warmup_seconds": 0.2647831589999896,
+    "warmup_iterations": 3,
+    "batch_size": 1,
+    "inference_total_seconds": 0.28552926499969544,
+    "average_inference_ms": 9.517642166656515,
+    "model_run_wall_seconds": 3.694213538000213,
+    "peak_gpu_memory_bytes": 238270976,
+    "error": null
+  },
+  {
+    "model": "cardiffnlp/twitter-roberta-base-sentiment-latest",
+    "model_alias": "twitter_roberta",
+    "model_revision": "3216a57f2a0d9c45a2e6c20157c20c49fb4bf9c7",
+    "family": "RoBERTa",
+    "task_training_data": "TweetEval sentiment",
+    "training_source": "https://huggingface.co/cardiffnlp/twitter-roberta-base-sentiment-latest",
+    "device": "Tesla T4",
+    "dtype": "torch.float16",
+    "samples": 30,
+    "successful": 30,
+    "failed": 0,
+    "accuracy": 0.5333333333333333,
+    "macro_f1": 0.4976657329598506,
+    "balanced_accuracy": 0.5333333333333333,
+    "per_class": {
+      "negative": {
+        "precision": 1.0,
+        "recall": 0.4,
+        "f1": 0.5714285714285714,
+        "support": 10
+      },
+      "neutral": {
+        "precision": 0.4166666666666667,
+        "recall": 1.0,
+        "f1": 0.5882352941176471,
+        "support": 10
+      },
+      "positive": {
+        "precision": 1.0,
+        "recall": 0.2,
+        "f1": 0.3333333333333333,
+        "support": 10
+      }
+    },
+    "confusion_matrix": {
+      "negative": {
+        "negative": 4,
+        "neutral": 6,
+        "positive": 0,
+        "invalid": 0
+      },
+      "neutral": {
+        "negative": 0,
+        "neutral": 10,
+        "positive": 0,
+        "invalid": 0
+      },
+      "positive": {
+        "negative": 0,
+        "neutral": 8,
+        "positive": 2,
+        "invalid": 0
+      }
+    },
+    "load_seconds": 3.171428653000021,
+    "warmup_seconds": 0.08766401699995185,
+    "warmup_iterations": 3,
+    "batch_size": 1,
+    "inference_total_seconds": 0.3024549190001835,
+    "average_inference_ms": 10.08183063333945,
+    "model_run_wall_seconds": 3.5664037009998992,
+    "peak_gpu_memory_bytes": 267371008,
+    "error": null
+  },
+  {
+    "model": "cardiffnlp/twitter-xlm-roberta-base-sentiment",
+    "model_alias": "twitter_xlm_roberta",
+    "model_revision": "f2f1202b1bdeb07342385c3f807f9c07cd8f5cf8",
+    "family": "XLM-R",
+    "task_training_data": "Twitter sentiment in eight languages",
+    "training_source": "https://huggingface.co/cardiffnlp/twitter-xlm-roberta-base-sentiment",
+    "device": "Tesla T4",
+    "dtype": "torch.float16",
+    "samples": 30,
+    "successful": 30,
+    "failed": 0,
+    "accuracy": 0.5333333333333333,
+    "macro_f1": 0.4976657329598506,
+    "balanced_accuracy": 0.5333333333333333,
+    "per_class": {
+      "negative": {
+        "precision": 1.0,
+        "recall": 0.2,
+        "f1": 0.3333333333333333,
+        "support": 10
+      },
+      "neutral": {
+        "precision": 0.4166666666666667,
+        "recall": 1.0,
+        "f1": 0.5882352941176471,
+        "support": 10
+      },
+      "positive": {
+        "precision": 1.0,
+        "recall": 0.4,
+        "f1": 0.5714285714285714,
+        "support": 10
+      }
+    },
+    "confusion_matrix": {
+      "negative": {
+        "negative": 2,
+        "neutral": 8,
+        "positive": 0,
+        "invalid": 0
+      },
+      "neutral": {
+        "negative": 0,
+        "neutral": 10,
+        "positive": 0,
+        "invalid": 0
+      },
+      "positive": {
+        "negative": 0,
+        "neutral": 6,
+        "positive": 4,
+        "invalid": 0
+      }
+    },
+    "load_seconds": 6.9973973009998645,
+    "warmup_seconds": 0.03373203999990437,
+    "warmup_iterations": 3,
+    "batch_size": 1,
+    "inference_total_seconds": 0.3188352100000884,
+    "average_inference_ms": 10.62784033333628,
+    "model_run_wall_seconds": 7.35495312199987,
+    "peak_gpu_memory_bytes": 574455808,
+    "error": null
+  },
+  {
+    "model": "lxyuan/distilbert-base-multilingual-cased-sentiments-student",
+    "model_alias": "distilbert_multilingual",
+    "model_revision": "cf991100d706c13c0a080c097134c05b7f436c45",
+    "family": "DistilBERT",
+    "task_training_data": "Multilingual Sentiments; teacher distillation",
+    "training_source": "https://huggingface.co/lxyuan/distilbert-base-multilingual-cased-sentiments-student",
+    "device": "Tesla T4",
+    "dtype": "torch.float16",
+    "samples": 30,
+    "successful": 30,
+    "failed": 0,
+    "accuracy": 0.5333333333333333,
+    "macro_f1": 0.44675925925925924,
+    "balanced_accuracy": 0.5333333333333333,
+    "per_class": {
+      "negative": {
+        "precision": 0.875,
+        "recall": 0.7,
+        "f1": 0.7777777777777778,
+        "support": 10
+      },
+      "neutral": {
+        "precision": 0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 10
+      },
+      "positive": {
+        "precision": 0.4090909090909091,
+        "recall": 0.9,
+        "f1": 0.5625,
+        "support": 10
+      }
+    },
+    "confusion_matrix": {
+      "negative": {
+        "negative": 7,
+        "neutral": 0,
+        "positive": 3,
+        "invalid": 0
+      },
+      "neutral": {
+        "negative": 0,
+        "neutral": 0,
+        "positive": 10,
+        "invalid": 0
+      },
+      "positive": {
+        "negative": 1,
+        "neutral": 0,
+        "positive": 9,
+        "invalid": 0
+      }
+    },
+    "load_seconds": 3.429427655999916,
+    "warmup_seconds": 0.03447356599986051,
+    "warmup_iterations": 3,
+    "batch_size": 1,
+    "inference_total_seconds": 0.1603115480006636,
+    "average_inference_ms": 5.343718266688787,
+    "model_run_wall_seconds": 3.6289403889998084,
+    "peak_gpu_memory_bytes": 285660160,
+    "error": null
+  },
+  {
+    "model": "MoritzLaurer/deberta-v3-base-zeroshot-v2.0-c",
+    "model_alias": "deberta_base_zeroshot_c",
+    "model_revision": "bddf8c5411c34ac3565e16e04384fd68b2618dda",
+    "family": "DeBERTa-v3",
+    "task_training_data": "Synthetic Mixtral data + MNLI + FEVER-NLI",
+    "training_source": "https://huggingface.co/MoritzLaurer/deberta-v3-base-zeroshot-v2.0-c",
+    "device": "Tesla T4",
+    "dtype": "torch.float16",
+    "samples": 30,
+    "successful": 30,
+    "failed": 0,
+    "accuracy": 0.8666666666666667,
+    "macro_f1": 0.8611111111111112,
+    "balanced_accuracy": 0.8666666666666667,
+    "per_class": {
+      "negative": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 10
+      },
+      "neutral": {
+        "precision": 0.7142857142857143,
+        "recall": 1.0,
+        "f1": 0.8333333333333334,
+        "support": 10
+      },
+      "positive": {
+        "precision": 1.0,
+        "recall": 0.6,
+        "f1": 0.75,
+        "support": 10
+      }
+    },
+    "confusion_matrix": {
+      "negative": {
+        "negative": 10,
+        "neutral": 0,
+        "positive": 0,
+        "invalid": 0
+      },
+      "neutral": {
+        "negative": 0,
+        "neutral": 10,
+        "positive": 0,
+        "invalid": 0
+      },
+      "positive": {
+        "negative": 0,
+        "neutral": 4,
+        "positive": 6,
+        "invalid": 0
+      }
+    },
+    "load_seconds": 3.204371386000048,
+    "warmup_seconds": 0.7243290670000988,
+    "warmup_iterations": 3,
+    "batch_size": 1,
+    "inference_total_seconds": 3.2705617909998637,
+    "average_inference_ms": 109.01872636666212,
+    "model_run_wall_seconds": 7.20516512800009,
+    "peak_gpu_memory_bytes": 391175680,
+    "error": null
+  },
+  {
+    "model": "MoritzLaurer/deberta-v3-large-zeroshot-v2.0-c",
+    "model_alias": "deberta_large_zeroshot_c",
+    "model_revision": "b2730f16019076bb0009481121efbe4705e0e378",
+    "family": "DeBERTa-v3",
+    "task_training_data": "Synthetic Mixtral data + MNLI + FEVER-NLI",
+    "training_source": "https://huggingface.co/MoritzLaurer/deberta-v3-large-zeroshot-v2.0-c",
+    "device": "Tesla T4",
+    "dtype": "torch.float16",
+    "samples": 30,
+    "successful": 30,
+    "failed": 0,
+    "accuracy": 0.9666666666666667,
+    "macro_f1": 0.9665831244778613,
+    "balanced_accuracy": 0.9666666666666667,
+    "per_class": {
+      "negative": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 10
+      },
+      "neutral": {
+        "precision": 0.9090909090909091,
+        "recall": 1.0,
+        "f1": 0.9523809523809523,
+        "support": 10
+      },
+      "positive": {
+        "precision": 1.0,
+        "recall": 0.9,
+        "f1": 0.9473684210526315,
+        "support": 10
+      }
+    },
+    "confusion_matrix": {
+      "negative": {
+        "negative": 10,
+        "neutral": 0,
+        "positive": 0,
+        "invalid": 0
+      },
+      "neutral": {
+        "negative": 0,
+        "neutral": 10,
+        "positive": 0,
+        "invalid": 0
+      },
+      "positive": {
+        "negative": 0,
+        "neutral": 1,
+        "positive": 9,
+        "invalid": 0
+      }
+    },
+    "load_seconds": 5.321203169,
+    "warmup_seconds": 0.43089151800018044,
+    "warmup_iterations": 3,
+    "batch_size": 1,
+    "inference_total_seconds": 4.623985745999789,
+    "average_inference_ms": 154.13285819999297,
+    "model_run_wall_seconds": 10.382101563000106,
+    "peak_gpu_memory_bytes": 889241088,
+    "error": null
+  },
+  {
+    "model": "typeform/distilbert-base-uncased-mnli",
+    "model_alias": "distilbert_zeroshot",
+    "model_revision": "cfa538a0fddbbd978fefe8966c1aeff7ad409c90",
+    "family": "DistilBERT",
+    "task_training_data": "MultiNLI",
+    "training_source": "https://huggingface.co/typeform/distilbert-base-uncased-mnli",
+    "device": "Tesla T4",
+    "dtype": "torch.float16",
+    "samples": 30,
+    "successful": 30,
+    "failed": 0,
+    "accuracy": 0.5333333333333333,
+    "macro_f1": 0.5095238095238095,
+    "balanced_accuracy": 0.5333333333333333,
+    "per_class": {
+      "negative": {
+        "precision": 0.45,
+        "recall": 0.9,
+        "f1": 0.6,
+        "support": 10
+      },
+      "neutral": {
+        "precision": 0.75,
+        "recall": 0.3,
+        "f1": 0.42857142857142855,
+        "support": 10
+      },
+      "positive": {
+        "precision": 0.6666666666666666,
+        "recall": 0.4,
+        "f1": 0.5,
+        "support": 10
+      }
+    },
+    "confusion_matrix": {
+      "negative": {
+        "negative": 9,
+        "neutral": 1,
+        "positive": 0,
+        "invalid": 0
+      },
+      "neutral": {
+        "negative": 5,
+        "neutral": 3,
+        "positive": 2,
+        "invalid": 0
+      },
+      "positive": {
+        "negative": 6,
+        "neutral": 0,
+        "positive": 4,
+        "invalid": 0
+      }
+    },
+    "load_seconds": 1.8274785639998754,
+    "warmup_seconds": 0.0475970369998322,
+    "warmup_iterations": 3,
+    "batch_size": 1,
+    "inference_total_seconds": 0.48402204400008486,
+    "average_inference_ms": 16.13406813333616,
+    "model_run_wall_seconds": 2.3640669399999297,
+    "peak_gpu_memory_bytes": 148301824,
+    "error": null
+  },
+  {
+    "model": "typeform/mobilebert-uncased-mnli",
+    "model_alias": "mobilebert_zeroshot",
+    "model_revision": "7bde1575aeaec3819a2ed901a35f114faf4a5318",
+    "family": "MobileBERT",
+    "task_training_data": "MultiNLI",
+    "training_source": "https://huggingface.co/typeform/mobilebert-uncased-mnli",
+    "device": "Tesla T4",
+    "dtype": "torch.float16",
+    "samples": 30,
+    "successful": 30,
+    "failed": 0,
+    "accuracy": 0.7,
+    "macro_f1": 0.6666666666666666,
+    "balanced_accuracy": 0.7000000000000001,
+    "per_class": {
+      "negative": {
+        "precision": 0.8,
+        "recall": 0.8,
+        "f1": 0.8,
+        "support": 10
+      },
+      "neutral": {
+        "precision": 0.6,
+        "recall": 0.3,
+        "f1": 0.4,
+        "support": 10
+      },
+      "positive": {
+        "precision": 0.6666666666666666,
+        "recall": 1.0,
+        "f1": 0.8,
+        "support": 10
+      }
+    },
+    "confusion_matrix": {
+      "negative": {
+        "negative": 8,
+        "neutral": 2,
+        "positive": 0,
+        "invalid": 0
+      },
+      "neutral": {
+        "negative": 2,
+        "neutral": 3,
+        "positive": 5,
+        "invalid": 0
+      },
+      "positive": {
+        "negative": 0,
+        "neutral": 0,
+        "positive": 10,
+        "invalid": 0
+      }
+    },
+    "load_seconds": 1.5963767830000961,
+    "warmup_seconds": 0.26345568299984734,
+    "warmup_iterations": 3,
+    "batch_size": 1,
+    "inference_total_seconds": 2.4366409819986075,
+    "average_inference_ms": 81.22136606662025,
+    "model_run_wall_seconds": 4.301324313000123,
+    "peak_gpu_memory_bytes": 59508224,
+    "error": null
+  },
+  {
+    "model": "MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+    "model_alias": "deberta_mnli",
+    "model_revision": "6f5cf0a2b59cabb106aca4c287eed12e357e90eb",
+    "family": "DeBERTa-v3",
+    "task_training_data": "MultiNLI + FEVER-NLI + ANLI",
+    "training_source": "https://huggingface.co/MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+    "device": "Tesla T4",
+    "dtype": "torch.float16",
+    "samples": 30,
+    "successful": 30,
+    "failed": 0,
+    "accuracy": 0.9,
+    "macro_f1": 0.9015037593984961,
+    "balanced_accuracy": 0.9,
+    "per_class": {
+      "negative": {
+        "precision": 1.0,
+        "recall": 0.9,
+        "f1": 0.9473684210526315,
+        "support": 10
+      },
+      "neutral": {
+        "precision": 0.8181818181818182,
+        "recall": 0.9,
+        "f1": 0.8571428571428571,
+        "support": 10
+      },
+      "positive": {
+        "precision": 0.9,
+        "recall": 0.9,
+        "f1": 0.9,
+        "support": 10
+      }
+    },
+    "confusion_matrix": {
+      "negative": {
+        "negative": 9,
+        "neutral": 1,
+        "positive": 0,
+        "invalid": 0
+      },
+      "neutral": {
+        "negative": 0,
+        "neutral": 9,
+        "positive": 1,
+        "invalid": 0
+      },
+      "positive": {
+        "negative": 0,
+        "neutral": 1,
+        "positive": 9,
+        "invalid": 0
+      }
+    },
+    "load_seconds": 3.1745664610000404,
+    "warmup_seconds": 0.2146549970000251,
+    "warmup_iterations": 3,
+    "batch_size": 1,
+    "inference_total_seconds": 2.7221662020003805,
+    "average_inference_ms": 90.73887340001268,
+    "model_run_wall_seconds": 6.116286743000046,
+    "peak_gpu_memory_bytes": 391177216,
+    "error": null
+  },
+  {
+    "model": "FacebookAI/roberta-large-mnli",
+    "model_alias": "roberta_large_mnli",
+    "model_revision": "2a8f12d27941090092df78e4ba6f0928eb5eac98",
+    "family": "RoBERTa",
+    "task_training_data": "MultiNLI",
+    "training_source": "https://huggingface.co/FacebookAI/roberta-large-mnli",
+    "device": "Tesla T4",
+    "dtype": "torch.float16",
+    "samples": 30,
+    "successful": 30,
+    "failed": 0,
+    "accuracy": 0.7,
+    "macro_f1": 0.638888888888889,
+    "balanced_accuracy": 0.7000000000000001,
+    "per_class": {
+      "negative": {
+        "precision": 0.7142857142857143,
+        "recall": 1.0,
+        "f1": 0.8333333333333334,
+        "support": 10
+      },
+      "neutral": {
+        "precision": 1.0,
+        "recall": 0.2,
+        "f1": 0.3333333333333333,
+        "support": 10
+      },
+      "positive": {
+        "precision": 0.6428571428571429,
+        "recall": 0.9,
+        "f1": 0.75,
+        "support": 10
+      }
+    },
+    "confusion_matrix": {
+      "negative": {
+        "negative": 10,
+        "neutral": 0,
+        "positive": 0,
+        "invalid": 0
+      },
+      "neutral": {
+        "negative": 3,
+        "neutral": 2,
+        "positive": 5,
+        "invalid": 0
+      },
+      "positive": {
+        "negative": 1,
+        "neutral": 0,
+        "positive": 9,
+        "invalid": 0
+      }
+    },
+    "load_seconds": 6.910828182999921,
+    "warmup_seconds": 0.1658395140000266,
+    "warmup_iterations": 3,
+    "batch_size": 1,
+    "inference_total_seconds": 1.4997456910004985,
+    "average_inference_ms": 49.99152303334995,
+    "model_run_wall_seconds": 8.58150235900007,
+    "peak_gpu_memory_bytes": 722841088,
+    "error": null
+  },
+  {
+    "model": "MoritzLaurer/roberta-base-zeroshot-v2.0-c",
+    "model_alias": "roberta_base_zeroshot_c",
+    "model_revision": "d825e740e0c59881cf0b0b1481ccf726b6d65341",
+    "family": "RoBERTa",
+    "task_training_data": "Synthetic Mixtral data + MNLI + FEVER-NLI",
+    "training_source": "https://huggingface.co/MoritzLaurer/roberta-base-zeroshot-v2.0-c",
+    "device": "Tesla T4",
+    "dtype": "torch.float16",
+    "samples": 30,
+    "successful": 30,
+    "failed": 0,
+    "accuracy": 0.7666666666666667,
+    "macro_f1": 0.7654320987654321,
+    "balanced_accuracy": 0.7666666666666666,
+    "per_class": {
+      "negative": {
+        "precision": 1.0,
+        "recall": 0.8,
+        "f1": 0.8888888888888888,
+        "support": 10
+      },
+      "neutral": {
+        "precision": 0.5882352941176471,
+        "recall": 1.0,
+        "f1": 0.7407407407407407,
+        "support": 10
+      },
+      "positive": {
+        "precision": 1.0,
+        "recall": 0.5,
+        "f1": 0.6666666666666666,
+        "support": 10
+      }
+    },
+    "confusion_matrix": {
+      "negative": {
+        "negative": 8,
+        "neutral": 2,
+        "positive": 0,
+        "invalid": 0
+      },
+      "neutral": {
+        "negative": 0,
+        "neutral": 10,
+        "positive": 0,
+        "invalid": 0
+      },
+      "positive": {
+        "negative": 0,
+        "neutral": 5,
+        "positive": 5,
+        "invalid": 0
+      }
+    },
+    "load_seconds": 1.9367344749998665,
+    "warmup_seconds": 0.11242333800009874,
+    "warmup_iterations": 3,
+    "batch_size": 1,
+    "inference_total_seconds": 1.1531801200003429,
+    "average_inference_ms": 38.43933733334476,
+    "model_run_wall_seconds": 3.2068462879999515,
+    "peak_gpu_memory_bytes": 267556352,
+    "error": null
+  },
+  {
+    "model": "MoritzLaurer/bge-m3-zeroshot-v2.0-c",
+    "model_alias": "bge_m3_zeroshot_c",
+    "model_revision": "705510dfe0f35d223a4bf6f5d2695ec5fd162341",
+    "family": "BGE-M3 / XLM-R",
+    "task_training_data": "Synthetic Mixtral data + MNLI + FEVER-NLI",
+    "training_source": "https://huggingface.co/MoritzLaurer/bge-m3-zeroshot-v2.0-c",
+    "device": "Tesla T4",
+    "dtype": "torch.float16",
+    "samples": 30,
+    "successful": 30,
+    "failed": 0,
+    "accuracy": 0.8,
+    "macro_f1": 0.7916666666666666,
+    "balanced_accuracy": 0.7999999999999999,
+    "per_class": {
+      "negative": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 10
+      },
+      "neutral": {
+        "precision": 0.6428571428571429,
+        "recall": 0.9,
+        "f1": 0.75,
+        "support": 10
+      },
+      "positive": {
+        "precision": 0.8333333333333334,
+        "recall": 0.5,
+        "f1": 0.625,
+        "support": 10
+      }
+    },
+    "confusion_matrix": {
+      "negative": {
+        "negative": 10,
+        "neutral": 0,
+        "positive": 0,
+        "invalid": 0
+      },
+      "neutral": {
+        "negative": 0,
+        "neutral": 9,
+        "positive": 1,
+        "invalid": 0
+      },
+      "positive": {
+        "negative": 0,
+        "neutral": 5,
+        "positive": 5,
+        "invalid": 0
+      }
+    },
+    "load_seconds": 7.612763228999938,
+    "warmup_seconds": 0.15722565800001576,
+    "warmup_iterations": 3,
+    "batch_size": 1,
+    "inference_total_seconds": 1.4684757189997981,
+    "average_inference_ms": 48.9491906333266,
+    "model_run_wall_seconds": 9.242867383999965,
+    "peak_gpu_memory_bytes": 1146947072,
+    "error": null
+  },
+  {
+    "model": "facebook/bart-large-mnli",
+    "model_alias": "bart_mnli",
+    "model_revision": "d7645e127eaf1aefc7862fd59a17a5aa8558b8ce",
+    "family": "BART",
+    "task_training_data": "MultiNLI",
+    "training_source": "https://huggingface.co/facebook/bart-large-mnli",
+    "device": "Tesla T4",
+    "dtype": "torch.float16",
+    "samples": 30,
+    "successful": 30,
+    "failed": 0,
+    "accuracy": 0.7333333333333333,
+    "macro_f1": 0.6754850088183422,
+    "balanced_accuracy": 0.7333333333333334,
+    "per_class": {
+      "negative": {
+        "precision": 0.9090909090909091,
+        "recall": 1.0,
+        "f1": 0.9523809523809523,
+        "support": 10
+      },
+      "neutral": {
+        "precision": 1.0,
+        "recall": 0.2,
+        "f1": 0.3333333333333333,
+        "support": 10
+      },
+      "positive": {
+        "precision": 0.5882352941176471,
+        "recall": 1.0,
+        "f1": 0.7407407407407407,
+        "support": 10
+      }
+    },
+    "confusion_matrix": {
+      "negative": {
+        "negative": 10,
+        "neutral": 0,
+        "positive": 0,
+        "invalid": 0
+      },
+      "neutral": {
+        "negative": 1,
+        "neutral": 2,
+        "positive": 7,
+        "invalid": 0
+      },
+      "positive": {
+        "negative": 0,
+        "neutral": 0,
+        "positive": 10,
+        "invalid": 0
+      }
+    },
+    "load_seconds": 7.980095945999892,
+    "warmup_seconds": 0.2644885150000391,
+    "warmup_iterations": 3,
+    "batch_size": 1,
+    "inference_total_seconds": 1.9558436369998162,
+    "average_inference_ms": 65.19478789999387,
+    "model_run_wall_seconds": 10.20563443900005,
+    "peak_gpu_memory_bytes": 826305024,
+    "error": null
+  }
+]

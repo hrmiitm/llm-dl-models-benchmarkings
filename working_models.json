@@ -1,0 +1,20 @@
+[
+  {
+    "model": "gemini-3.1-flash-lite",
+    "endpoints": [
+      "https://llmfoundry.straivedemo.com/gemini/v1beta/openai/chat/completions"
+    ]
+  },
+  {
+    "model": "qwen/qwen3.8-27b",
+    "endpoints": [
+      "https://llmfoundry.straivedemo.com/groq/openai/v1/chat/completions"
+    ]
+  },
+  {
+  "model": "gemini-3.8-flash",
+  "endpoints": [
+    "https://llmfoundry.straivedemo.com/gemini/v1beta/models/gemini-3.8-flash:generateContent",
+  ]
+  },
+]

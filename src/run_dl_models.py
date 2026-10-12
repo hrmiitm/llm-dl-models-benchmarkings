@@ -11,17 +11,50 @@ from pathlib import Path
 
 from benchmark_common import ROOT, LABELS, environment, evaluate, load_inputs, write_json, write_record
 
-# Three-way sentiment only: binary classifiers are not comparable to this dataset.
+# Selection is based on publishers' documented task-training data, checked 2026-10-13.
+# Excluded: ProsusAI/finbert and the non-"-c" DeBERTa zero-shot v2 checkpoints;
+# all three used Financial PhraseBank. Public-web pretraining exposure is not auditable.
+# The "-c" checkpoints use synthetic data + MNLI/FEVER-NLI instead of PhraseBank.
+# Every model below supports the same three sentiment classes (directly or through NLI).
+
+def model_spec(name, model, task, family, training_data, mapping=None):
+    return {
+        "name": name, "model": model, "task": task, "family": family,
+        "mapping": mapping or {}, "task_training_data": training_data,
+        "training_source": f"https://huggingface.co/{model}",
+    }
+
+
 MODELS = [
-    {"name": "finbert_tone", "model": "yiyanghkust/finbert-tone", "task": "text-classification", "mapping": {"label_0": "neutral", "label_1": "positive", "label_2": "negative"}},
-    {"name": "finbert", "model": "ProsusAI/finbert", "task": "text-classification", "mapping": {}},
-    {"name": "twitter_roberta", "model": "cardiffnlp/twitter-roberta-base-sentiment-latest", "task": "text-classification", "mapping": {"label_0": "negative", "label_1": "neutral", "label_2": "positive"}},
-    {"name": "distilbert_multilingual", "model": "lxyuan/distilbert-base-multilingual-cased-sentiments-student", "task": "text-classification", "mapping": {}},
-    {"name": "deberta_base_zeroshot", "model": "MoritzLaurer/deberta-v3-base-zeroshot-v2.0", "task": "zero-shot-classification", "mapping": {}},
-    {"name": "deberta_zeroshot", "model": "MoritzLaurer/deberta-v3-large-zeroshot-v2.0", "task": "zero-shot-classification", "mapping": {}},
-    {"name": "distilbert_zeroshot", "model": "typeform/distilbert-base-uncased-mnli", "task": "zero-shot-classification", "mapping": {}},
-    {"name": "deberta_mnli", "model": "MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli", "task": "zero-shot-classification", "mapping": {}},
-    {"name": "bart_mnli", "model": "facebook/bart-large-mnli", "task": "zero-shot-classification", "mapping": {}},
+    model_spec("finbert_tone", "yiyanghkust/finbert-tone", "text-classification",
+               "BERT", "10,000 manually annotated analyst-report sentences",
+               {"label_0": "neutral", "label_1": "positive", "label_2": "negative"}),
+    model_spec("twitter_roberta", "cardiffnlp/twitter-roberta-base-sentiment-latest",
+               "text-classification", "RoBERTa", "TweetEval sentiment",
+               {"label_0": "negative", "label_1": "neutral", "label_2": "positive"}),
+    model_spec("twitter_xlm_roberta", "cardiffnlp/twitter-xlm-roberta-base-sentiment",
+               "text-classification", "XLM-R", "Twitter sentiment in eight languages",
+               {"label_0": "negative", "label_1": "neutral", "label_2": "positive"}),
+    model_spec("distilbert_multilingual", "lxyuan/distilbert-base-multilingual-cased-sentiments-student",
+               "text-classification", "DistilBERT", "Multilingual Sentiments; teacher distillation"),
+    model_spec("deberta_base_zeroshot_c", "MoritzLaurer/deberta-v3-base-zeroshot-v2.0-c",
+               "zero-shot-classification", "DeBERTa-v3", "Synthetic Mixtral data + MNLI + FEVER-NLI"),
+    model_spec("deberta_large_zeroshot_c", "MoritzLaurer/deberta-v3-large-zeroshot-v2.0-c",
+               "zero-shot-classification", "DeBERTa-v3", "Synthetic Mixtral data + MNLI + FEVER-NLI"),
+    model_spec("distilbert_zeroshot", "typeform/distilbert-base-uncased-mnli",
+               "zero-shot-classification", "DistilBERT", "MultiNLI"),
+    model_spec("mobilebert_zeroshot", "typeform/mobilebert-uncased-mnli",
+               "zero-shot-classification", "MobileBERT", "MultiNLI"),
+    model_spec("deberta_mnli", "MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+               "zero-shot-classification", "DeBERTa-v3", "MultiNLI + FEVER-NLI + ANLI"),
+    model_spec("roberta_large_mnli", "FacebookAI/roberta-large-mnli",
+               "zero-shot-classification", "RoBERTa", "MultiNLI"),
+    model_spec("roberta_base_zeroshot_c", "MoritzLaurer/roberta-base-zeroshot-v2.0-c",
+               "zero-shot-classification", "RoBERTa", "Synthetic Mixtral data + MNLI + FEVER-NLI"),
+    model_spec("bge_m3_zeroshot_c", "MoritzLaurer/bge-m3-zeroshot-v2.0-c",
+               "zero-shot-classification", "BGE-M3 / XLM-R", "Synthetic Mixtral data + MNLI + FEVER-NLI"),
+    model_spec("bart_mnli", "facebook/bart-large-mnli",
+               "zero-shot-classification", "BART", "MultiNLI"),
 ]
 HYPOTHESIS = "The financial sentiment of this statement is {}."
 
@@ -108,6 +141,8 @@ def main(argv=None):
     env = environment(args.input, args.answer_key, args)
     env.update({"gpu": device_name, "torch": torch.__version__, "transformers": importlib.metadata.version("transformers"),
                 "cuda": torch.version.cuda, "dtype": str(dtype), "model_config": specs,
+                "dataset_policy": "Exclude documented Financial PhraseBank task training; pretraining exposure cannot be guaranteed absent",
+                "training_data_checked_on": "2026-10-13",
                 "gpu_memory_bytes": torch.cuda.get_device_properties(0).total_memory if cuda else None,
                 "peak_gpu_memory_metric": "torch.cuda.max_memory_allocated; includes resident model, excludes reserved and other-process memory",
                 "hypothesis_template": HYPOTHESIS, "batch_size": 1, "timing": "synchronized end-to-end pipeline per sentence, including tokenization, transfers and postprocessing; excludes load and warmup",
@@ -152,7 +187,9 @@ def main(argv=None):
                 torch.cuda.reset_peak_memory_stats()
             for row in inputs:
                 record = {"id": row["id"], "sentence": row["sentence"], "model": spec["model"],
-                          "model_alias": spec["name"], "model_revision": revision, "device": device_name,
+                          "model_alias": spec["name"], "family": spec["family"],
+                          "task_training_data": spec["task_training_data"], "training_source": spec["training_source"],
+                          "model_revision": revision, "device": device_name,
                           "dtype": str(dtype), "predicted_label": None, "confidence": None,
                           "confidence_source": "classifier_probability",
                           "probabilities": None, "inference_seconds": None, "error": load_error}
@@ -173,6 +210,8 @@ def main(argv=None):
                 write_record(file, record)
                 print(f"  {row['id']}: {record['predicted_label'] or 'ERROR'}", flush=True)
             summary.append({"model": spec["model"], "model_alias": spec["name"], "model_revision": revision,
+                            "family": spec["family"], "task_training_data": spec["task_training_data"],
+                            "training_source": spec["training_source"],
                             "device": device_name, "dtype": str(dtype), **evaluate(records, truth),
                             "load_seconds": load_seconds, "warmup_seconds": warmup_seconds,
                             "warmup_iterations": args.warmup, "batch_size": 1,

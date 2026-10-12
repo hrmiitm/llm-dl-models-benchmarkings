@@ -1,0 +1,53 @@
+[
+  {
+    "model": "gemini-3.1-flash-lite",
+    "endpoint": "https://llmfoundry.straivedemo.com/gemini/v1beta/openai/chat/completions",
+    "temperature": 0,
+    "reasoning_effort": "low",
+    "accuracy": 1.0,
+    "macro_f1": 0.3333,
+    "model_run_wall_seconds": 2.1623,
+    "samples": 1,
+    "successful": 1,
+    "failed": 0,
+    "total_inference_seconds": 2.1614,
+    "mean_latency_ms": 2161.43,
+    "prompt_tokens": 72,
+    "completion_tokens": 1,
+    "total_tokens": 191
+  },
+  {
+    "model": "qwen/qwen3.8-27b",
+    "endpoint": "https://llmfoundry.straivedemo.com/groq/openai/v1/chat/completions",
+    "temperature": 0,
+    "reasoning_effort": "low",
+    "accuracy": 1.0,
+    "macro_f1": 0.3333,
+    "model_run_wall_seconds": 0.8134,
+    "samples": 1,
+    "successful": 1,
+    "failed": 0,
+    "total_inference_seconds": 0.813,
+    "mean_latency_ms": 812.97,
+    "prompt_tokens": 110,
+    "completion_tokens": 48,
+    "total_tokens": 158
+  },
+  {
+    "model": "gemini-3.8-flash",
+    "endpoint": "https://llmfoundry.straivedemo.com/gemini/v1beta/models/gemini-3.8-flash:generateContent",
+    "temperature": 0,
+    "reasoning_effort": "low",
+    "accuracy": 1.0,
+    "macro_f1": 0.3333,
+    "model_run_wall_seconds": 1.228,
+    "samples": 1,
+    "successful": 1,
+    "failed": 0,
+    "total_inference_seconds": 1.2277,
+    "mean_latency_ms": 1227.7,
+    "prompt_tokens": 72,
+    "completion_tokens": 1,
+    "total_tokens": 134
+  }
+]

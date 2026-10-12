@@ -1,4 +1,4 @@
-# uv run src/data_prepare.py
+# uv run --extra data python src/data_prepare.py
 import csv
 import random
 import zipfile

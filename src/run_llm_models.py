@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 
 from benchmark_common import (
     ROOT,
+    LABELS,
     environment,
     evaluate,
     finite_nonnegative,
@@ -17,6 +18,16 @@ from benchmark_common import (
     write_json,
     write_record,
 )
+
+
+def parse_prediction(raw):
+    answer = json.loads(re.sub(r"<think>.*?</think>", "", raw, flags=re.S | re.I).strip())
+    if not isinstance(answer, dict) or answer.get("label") not in LABELS:
+        raise ValueError("Expected a JSON object with a valid sentiment label")
+    confidence = answer.get("confidence")
+    if type(confidence) not in (int, float) or finite_nonnegative(confidence) is None or confidence > 1:
+        raise ValueError("Confidence must be a finite number between 0 and 1")
+    return answer["label"], float(confidence)
 
 
 def main(argv=None):
@@ -100,7 +111,7 @@ def main(argv=None):
             records, started = [], time.perf_counter()
             for row in rows:
                 result, data, tick = (
-                    meta | row | dict(predicted_label=None, error=None),
+                    meta | row | dict(predicted_label=None, confidence=None, confidence_source="model_reported", error=None),
                     {},
                     time.perf_counter(),
                 )
@@ -108,11 +119,29 @@ def main(argv=None):
                     "model": model["model"],
                     "provider": pin,
                     "max_tokens": 2048,
+                    "response_format": {
+                        "type": "json_schema",
+                        "json_schema": {
+                            "name": "sentiment",
+                            "strict": True,
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "label": {"type": "string", "enum": list(LABELS)},
+                                    "confidence": {"type": "number"},
+                                },
+                                "required": ["label", "confidence"],
+                                "additionalProperties": False,
+                            },
+                        },
+                    },
                     "messages": [
                         {
                             "role": "user",
                             "content": "Classify financial sentiment from an investor's "
-                            "perspective. Answer exactly positive, negative or neutral. "
+                            "perspective. Return only JSON containing label (positive, negative "
+                            "or neutral) and confidence (a number from 0 to 1 estimating "
+                            "the probability that your chosen label is correct). Do not explain. "
                             "Sentence: " + row["sentence"],
                         }
                     ],
@@ -133,18 +162,9 @@ def main(argv=None):
                     if data.get("error") or data.get("provider") != model["provider_name"]:
                         raise ValueError(data.get("error") or "Provider mismatch")
                     raw = data["choices"][0]["message"]["content"] or ""
-                    labels = set(
-                        re.findall(
-                            r"\b(negative|neutral|positive)\b",
-                            re.sub(r"<think>.*?</think>", "", raw, flags=re.S | re.I).lower(),
-                        )
-                    )
-                    result.update(
-                        raw_output=raw,
-                        predicted_label=next(iter(labels)) if len(labels) == 1 else None,
-                    )
-                    if result["predicted_label"] is None:
-                        raise ValueError("Ambiguous sentiment label")
+                    result["raw_output"] = raw
+                    label, confidence = parse_prediction(raw)
+                    result.update(predicted_label=label, confidence=confidence)
                 except (
                     requests.RequestException,
                     ValueError,
@@ -194,6 +214,11 @@ def main(argv=None):
                         else None
                     ),
                     provider_verified=all(r["provider_verified"] for r in records),
+                    mean_confidence=(
+                        sum(r["confidence"] for r in records) / len(records)
+                        if all(r["confidence"] is not None for r in records) else None
+                    ),
+                    confidence_samples=sum(r["confidence"] is not None for r in records),
                     total_inference_seconds=sum(r["inference_seconds"] for r in records),
                     mean_latency_ms=(
                         1000 * sum(r["inference_seconds"] for r in records) / len(records)

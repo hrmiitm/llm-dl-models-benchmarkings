@@ -4,6 +4,8 @@ import gc
 import importlib.metadata
 import math
 import random
+import shutil
+import zipfile
 import time
 from pathlib import Path
 
@@ -17,6 +19,8 @@ MODELS = [
     {"name": "distilbert_multilingual", "model": "lxyuan/distilbert-base-multilingual-cased-sentiments-student", "task": "text-classification", "mapping": {}},
     {"name": "deberta_base_zeroshot", "model": "MoritzLaurer/deberta-v3-base-zeroshot-v2.0", "task": "zero-shot-classification", "mapping": {}},
     {"name": "deberta_zeroshot", "model": "MoritzLaurer/deberta-v3-large-zeroshot-v2.0", "task": "zero-shot-classification", "mapping": {}},
+    {"name": "distilbert_zeroshot", "model": "typeform/distilbert-base-uncased-mnli", "task": "zero-shot-classification", "mapping": {}},
+    {"name": "deberta_mnli", "model": "MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli", "task": "zero-shot-classification", "mapping": {}},
     {"name": "bart_mnli", "model": "facebook/bart-large-mnli", "task": "zero-shot-classification", "mapping": {}},
 ]
 HYPOTHESIS = "The financial sentiment of this statement is {}."
@@ -44,6 +48,8 @@ def main(argv=None):
     parser.add_argument("--input", type=Path, default=ROOT / "data/test_30.csv")
     parser.add_argument("--answer-key", type=Path, default=ROOT / "data/answer_key_30.csv")
     parser.add_argument("--output-dir", type=Path)
+    parser.add_argument("--archive", type=Path, help="Write a zip for manual download and import into results/")
+    parser.add_argument("--warmup", type=int, default=3, help="Untimed warmup predictions per model")
     parser.add_argument("--models", nargs="+", help="Model aliases or Hugging Face IDs")
     parser.add_argument("--list-models", action="store_true")
     parser.add_argument("--device", choices=("auto", "cpu", "cuda"), default="auto")
@@ -59,8 +65,8 @@ def main(argv=None):
         for spec in MODELS:
             print(f"{spec['name']}: {spec['model']}")
         return 0
-    if (args.limit is not None and args.limit <= 0) or args.max_length <= 0:
-        parser.error("limit and max-length must be positive")
+    if (args.limit is not None and args.limit <= 0) or args.max_length <= 0 or args.warmup < 1:
+        parser.error("limit, max-length and warmup must be positive")
     if args.smoke and args.limit is None:
         args.limit = 1
     args.output_dir = args.output_dir or ROOT / "results" / ("dl_smoke" if args.smoke else "dl")
@@ -103,7 +109,9 @@ def main(argv=None):
     env.update({"gpu": device_name, "torch": torch.__version__, "transformers": importlib.metadata.version("transformers"),
                 "cuda": torch.version.cuda, "dtype": str(dtype), "model_config": specs,
                 "gpu_memory_bytes": torch.cuda.get_device_properties(0).total_memory if cuda else None,
-                "hypothesis_template": HYPOTHESIS, "batch_size": 1, "timing": "synchronized per-sentence inference; excludes load and warmup"})
+                "peak_gpu_memory_metric": "torch.cuda.max_memory_allocated; includes resident model, excludes reserved and other-process memory",
+                "hypothesis_template": HYPOTHESIS, "batch_size": 1, "timing": "synchronized end-to-end pipeline per sentence, including tokenization, transfers and postprocessing; excludes load and warmup",
+                "warmup_iterations": args.warmup, "gpu_compute_capability": list(torch.cuda.get_device_capability(0)) if cuda else None})
     write_json(args.output_dir / "environment.json", env)
     print(f"Device: {device_name}; dtype: {dtype}", flush=True)
     summary = []
@@ -133,7 +141,8 @@ def main(argv=None):
                 sync()
                 load_seconds = time.perf_counter() - tick
                 warmup_start = time.perf_counter()
-                predict(clf, inputs[0]["sentence"], spec["task"], spec["mapping"], args.max_length)
+                for _ in range(args.warmup):
+                    predict(clf, inputs[0]["sentence"], spec["task"], spec["mapping"], args.max_length)
                 sync()
                 warmup_seconds = time.perf_counter() - warmup_start
             except Exception as exc:
@@ -145,6 +154,7 @@ def main(argv=None):
                 record = {"id": row["id"], "sentence": row["sentence"], "model": spec["model"],
                           "model_alias": spec["name"], "model_revision": revision, "device": device_name,
                           "dtype": str(dtype), "predicted_label": None, "confidence": None,
+                          "confidence_source": "classifier_probability",
                           "probabilities": None, "inference_seconds": None, "error": load_error}
                 if not load_error:
                     try:
@@ -165,6 +175,7 @@ def main(argv=None):
             summary.append({"model": spec["model"], "model_alias": spec["name"], "model_revision": revision,
                             "device": device_name, "dtype": str(dtype), **evaluate(records, truth),
                             "load_seconds": load_seconds, "warmup_seconds": warmup_seconds,
+                            "warmup_iterations": args.warmup, "batch_size": 1,
                             "inference_total_seconds": sum(latencies),
                             "average_inference_ms": 1000 * sum(latencies) / len(latencies) if latencies else None,
                             "model_run_wall_seconds": time.perf_counter() - tick,
@@ -177,6 +188,19 @@ def main(argv=None):
             if cuda:
                 torch.cuda.empty_cache()
     write_json(args.output_dir / "dl_evaluation.json", summary)
+    if args.archive:
+        data_dir = args.output_dir / "data"
+        data_dir.mkdir(exist_ok=True)
+        for source, name in ((args.input, "test_30.csv"), (args.answer_key, "answer_key_30.csv")):
+            destination = data_dir / name
+            if source.resolve() != destination.resolve():
+                shutil.copyfile(source, destination)
+        args.archive.parent.mkdir(parents=True, exist_ok=True)
+        with zipfile.ZipFile(args.archive, "w", zipfile.ZIP_DEFLATED) as archive:
+            for name in ("dl_predictions.jsonl", "dl_summary.json", "dl_evaluation.json", "environment.json",
+                         "data/test_30.csv", "data/answer_key_30.csv"):
+                archive.write(args.output_dir / name, Path(args.output_dir.name) / name)
+        print(f"Archive ready for manual download: {args.archive}")
     print(f"\nSaved results in {args.output_dir}")
     return int(any(s["failed"] for s in summary))
 

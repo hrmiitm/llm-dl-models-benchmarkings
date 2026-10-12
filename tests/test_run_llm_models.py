@@ -17,6 +17,10 @@ from run_dl_models import predict
 def response(body, status=200):
     result = requests.Response()
     result.status_code = status
+    for choice in body.get('choices', []):
+        content = choice.get('message', {}).get('content')
+        if content in ('positive', 'negative', 'neutral'):
+            choice['message']['content'] = json.dumps({'label': content, 'confidence': 0.9})
     result._content = json.dumps({'provider': 'OpenAI', **body}).encode()
     return result
 
@@ -28,7 +32,7 @@ class RunnerTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             with patch.dict(os.environ, {'OPENROUTER_API_KEY': 'fake-key'}), patch.object(runner.requests, 'Session') as factory:
                 factory.return_value.__enter__.return_value = session
-                code = runner.main(['--models', 'openai/gpt-6-luna', '--limit', str(len(responses)), '--output-dir', temp, *extra])
+                code = runner.main(['--provider', 'openrouter', '--models', 'openai/gpt-6-luna', '--limit', str(len(responses)), '--output-dir', temp, *extra])
             effort = extra[extra.index('--reasoning') + 1] if '--reasoning' in extra else 'low'
             records = [json.loads(x) for x in Path(temp, f'llm_predictions_reasoning_{effort}.jsonl').read_text().splitlines()]
             summary = json.loads(Path(temp, f'llm_summary_reasoning_{effort}.json').read_text())[0]
@@ -46,6 +50,10 @@ class RunnerTests(unittest.TestCase):
         self.assertEqual(session.headers.update.call_args.args[0]['Authorization'], 'Bearer fake-key')
         self.assertEqual(code, 0)
         self.assertTrue(rows[0]['provider_verified'])
+        self.assertEqual(rows[0]['confidence'], 0.9)
+        self.assertEqual(rows[0]['confidence_source'], 'model_reported')
+        self.assertEqual(summary['mean_confidence'], 0.9)
+        self.assertEqual(payload['response_format']['json_schema']['schema']['required'], ['label', 'confidence'])
         self.assertEqual(rows[0]['generation_id'], 'gen-1')
         self.assertEqual(rows[0]['total_tokens'], 12)
         self.assertEqual(rows[0]['api_cost_usd'], summary['api_cost_usd'])
@@ -85,10 +93,32 @@ class RunnerTests(unittest.TestCase):
             self.assertEqual(summary['api_cost_usd'], expected)
 
     def test_ambiguous_output_fails_and_thoughts_are_excluded(self):
-        for raw, expected in (('positive or negative', None), ('<think>negative</think>Positive.', 'positive')):
+        for raw, expected in (('positive or negative', None), ('<think>negative</think>{"label": "positive", "confidence": 0.85}', 'positive')):
             code, rows, _, _, _ = self.run_benchmark([response({'choices': [{'message': {'content': raw}}]})])
             self.assertEqual(rows[0]['predicted_label'], expected)
             self.assertEqual(code, int(expected is None))
+
+    def test_invalid_confidence_invalidates_both_outputs(self):
+        for confidence in (-0.1, 1.1, True, '0.9', None, float('nan')):
+            raw = json.dumps({'label': 'positive', 'confidence': confidence})
+            code, rows, summary, _, _ = self.run_benchmark([response({'choices': [{'message': {'content': raw}}]})])
+            self.assertEqual(code, 1)
+            self.assertIsNone(rows[0]['predicted_label'])
+            self.assertIsNone(rows[0]['confidence'])
+            self.assertIsNone(summary['mean_confidence'])
+            self.assertEqual(rows[0]['raw_output'], raw)
+
+    def test_confidence_is_not_fabricated_when_absent(self):
+        code, rows, _, _, _ = self.run_benchmark([response({'choices': [{'message': {'content': '{"label": "positive"}'}}]})])
+        self.assertEqual(code, 1)
+        self.assertIsNone(rows[0]['confidence'])
+
+    def test_reported_confidence_can_be_wrong(self):
+        raw = '{"label": "negative", "confidence": 0.99}'
+        code, rows, summary, _, _ = self.run_benchmark([response({'choices': [{'message': {'content': raw}}]})])
+        self.assertEqual(code, 0)
+        self.assertEqual(rows[0]['confidence'], 0.99)
+        self.assertEqual(summary['accuracy'], 0)
 
     def test_malformed_response_does_not_crash_benchmark(self):
         invalid = requests.Response()

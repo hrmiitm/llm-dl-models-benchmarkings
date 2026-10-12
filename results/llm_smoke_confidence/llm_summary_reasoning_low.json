@@ -1,0 +1,506 @@
+[
+  {
+    "model": "anthropic/claude-sonnet-5.5",
+    "endpoint": "https://llmfoundry.straivedemo.com/openrouter/v1/chat/completions",
+    "requested_provider": "anthropic",
+    "expected_provider": "Anthropic",
+    "provider_routing": {
+      "order": [
+        "anthropic"
+      ],
+      "only": [
+        "anthropic"
+      ],
+      "allow_fallbacks": false,
+      "require_parameters": true
+    },
+    "temperature": null,
+    "reasoning_effort": "low",
+    "samples": 3,
+    "successful": 3,
+    "failed": 0,
+    "accuracy": 1.0,
+    "macro_f1": 1.0,
+    "balanced_accuracy": 1.0,
+    "per_class": {
+      "negative": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1
+      },
+      "neutral": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1
+      },
+      "positive": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1
+      }
+    },
+    "confusion_matrix": {
+      "negative": {
+        "negative": 1,
+        "neutral": 0,
+        "positive": 0,
+        "invalid": 0
+      },
+      "neutral": {
+        "negative": 0,
+        "neutral": 1,
+        "positive": 0,
+        "invalid": 0
+      },
+      "positive": {
+        "negative": 0,
+        "neutral": 0,
+        "positive": 1,
+        "invalid": 0
+      }
+    },
+    "api_cost_usd": 0.0027879999999999997,
+    "provider": "Anthropic",
+    "provider_verified": true,
+    "mean_confidence": 0.91,
+    "confidence_samples": 3,
+    "total_inference_seconds": 9.277181021000615,
+    "mean_latency_ms": 3092.3936736668716,
+    "model_run_wall_seconds": 9.277606841000306
+  },
+  {
+    "model": "openai/gpt-6-luna",
+    "endpoint": "https://llmfoundry.straivedemo.com/openrouter/v1/chat/completions",
+    "requested_provider": "openai",
+    "expected_provider": "OpenAI",
+    "provider_routing": {
+      "order": [
+        "openai"
+      ],
+      "only": [
+        "openai"
+      ],
+      "allow_fallbacks": false,
+      "require_parameters": true
+    },
+    "temperature": null,
+    "reasoning_effort": "low",
+    "samples": 3,
+    "successful": 3,
+    "failed": 0,
+    "accuracy": 1.0,
+    "macro_f1": 1.0,
+    "balanced_accuracy": 1.0,
+    "per_class": {
+      "negative": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1
+      },
+      "neutral": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1
+      },
+      "positive": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1
+      }
+    },
+    "confusion_matrix": {
+      "negative": {
+        "negative": 1,
+        "neutral": 0,
+        "positive": 0,
+        "invalid": 0
+      },
+      "neutral": {
+        "negative": 0,
+        "neutral": 1,
+        "positive": 0,
+        "invalid": 0
+      },
+      "positive": {
+        "negative": 0,
+        "neutral": 0,
+        "positive": 1,
+        "invalid": 0
+      }
+    },
+    "api_cost_usd": 9.38e-05,
+    "provider": "OpenAI",
+    "provider_verified": true,
+    "mean_confidence": 0.9633333333333334,
+    "confidence_samples": 3,
+    "total_inference_seconds": 6.963464117999592,
+    "mean_latency_ms": 2321.1547059998643,
+    "model_run_wall_seconds": 6.963830698000038
+  },
+  {
+    "model": "qwen/qwen3-14b",
+    "endpoint": "https://llmfoundry.straivedemo.com/openrouter/v1/chat/completions",
+    "requested_provider": "deepinfra/fp8",
+    "expected_provider": "DeepInfra",
+    "provider_routing": {
+      "order": [
+        "deepinfra/fp8"
+      ],
+      "only": [
+        "deepinfra/fp8"
+      ],
+      "allow_fallbacks": false,
+      "require_parameters": true
+    },
+    "temperature": 0,
+    "reasoning_effort": "low",
+    "samples": 3,
+    "successful": 3,
+    "failed": 0,
+    "accuracy": 1.0,
+    "macro_f1": 1.0,
+    "balanced_accuracy": 1.0,
+    "per_class": {
+      "negative": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1
+      },
+      "neutral": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1
+      },
+      "positive": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1
+      }
+    },
+    "confusion_matrix": {
+      "negative": {
+        "negative": 1,
+        "neutral": 0,
+        "positive": 0,
+        "invalid": 0
+      },
+      "neutral": {
+        "negative": 0,
+        "neutral": 1,
+        "positive": 0,
+        "invalid": 0
+      },
+      "positive": {
+        "negative": 0,
+        "neutral": 0,
+        "positive": 1,
+        "invalid": 0
+      }
+    },
+    "api_cost_usd": 0.00030096,
+    "provider": "DeepInfra",
+    "provider_verified": true,
+    "mean_confidence": 0.7166666666666667,
+    "confidence_samples": 3,
+    "total_inference_seconds": 38.909905493000224,
+    "mean_latency_ms": 12969.968497666741,
+    "model_run_wall_seconds": 38.910300389999975
+  },
+  {
+    "model": "google/gemini-3.1-flash-lite",
+    "endpoint": "https://llmfoundry.straivedemo.com/openrouter/v1/chat/completions",
+    "requested_provider": "google-vertex/global",
+    "expected_provider": "Google",
+    "provider_routing": {
+      "order": [
+        "google-vertex/global"
+      ],
+      "only": [
+        "google-vertex/global"
+      ],
+      "allow_fallbacks": false,
+      "require_parameters": true
+    },
+    "temperature": 0,
+    "reasoning_effort": "low",
+    "samples": 3,
+    "successful": 3,
+    "failed": 0,
+    "accuracy": 1.0,
+    "macro_f1": 1.0,
+    "balanced_accuracy": 1.0,
+    "per_class": {
+      "negative": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1
+      },
+      "neutral": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1
+      },
+      "positive": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1
+      }
+    },
+    "confusion_matrix": {
+      "negative": {
+        "negative": 1,
+        "neutral": 0,
+        "positive": 0,
+        "invalid": 0
+      },
+      "neutral": {
+        "negative": 0,
+        "neutral": 1,
+        "positive": 0,
+        "invalid": 0
+      },
+      "positive": {
+        "negative": 0,
+        "neutral": 0,
+        "positive": 1,
+        "invalid": 0
+      }
+    },
+    "api_cost_usd": 0.00075975,
+    "provider": "Google",
+    "provider_verified": true,
+    "mean_confidence": 0.9633333333333333,
+    "confidence_samples": 3,
+    "total_inference_seconds": 4.0925377319999825,
+    "mean_latency_ms": 1364.1792439999942,
+    "model_run_wall_seconds": 4.09280366799976
+  },
+  {
+    "model": "google/gemini-3.8-flash",
+    "endpoint": "https://llmfoundry.straivedemo.com/openrouter/v1/chat/completions",
+    "requested_provider": "google-vertex/global",
+    "expected_provider": "Google",
+    "provider_routing": {
+      "order": [
+        "google-vertex/global"
+      ],
+      "only": [
+        "google-vertex/global"
+      ],
+      "allow_fallbacks": false,
+      "require_parameters": true
+    },
+    "temperature": null,
+    "reasoning_effort": "low",
+    "samples": 3,
+    "successful": 3,
+    "failed": 0,
+    "accuracy": 1.0,
+    "macro_f1": 1.0,
+    "balanced_accuracy": 1.0,
+    "per_class": {
+      "negative": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1
+      },
+      "neutral": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1
+      },
+      "positive": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1
+      }
+    },
+    "confusion_matrix": {
+      "negative": {
+        "negative": 1,
+        "neutral": 0,
+        "positive": 0,
+        "invalid": 0
+      },
+      "neutral": {
+        "negative": 0,
+        "neutral": 1,
+        "positive": 0,
+        "invalid": 0
+      },
+      "positive": {
+        "negative": 0,
+        "neutral": 0,
+        "positive": 1,
+        "invalid": 0
+      }
+    },
+    "api_cost_usd": 0.000519,
+    "provider": "Google",
+    "provider_verified": true,
+    "mean_confidence": 0.9773333333333333,
+    "confidence_samples": 3,
+    "total_inference_seconds": 6.142716605999794,
+    "mean_latency_ms": 2047.5722019999314,
+    "model_run_wall_seconds": 6.143200258999968
+  },
+  {
+    "model": "google/gemma-4-26b-a4b-it",
+    "endpoint": "https://llmfoundry.straivedemo.com/openrouter/v1/chat/completions",
+    "requested_provider": "deepinfra/fp8",
+    "expected_provider": "DeepInfra",
+    "provider_routing": {
+      "order": [
+        "deepinfra/fp8"
+      ],
+      "only": [
+        "deepinfra/fp8"
+      ],
+      "allow_fallbacks": false,
+      "require_parameters": true
+    },
+    "temperature": 0,
+    "reasoning_effort": "low",
+    "samples": 3,
+    "successful": 2,
+    "failed": 1,
+    "accuracy": 0.6666666666666666,
+    "macro_f1": 0.6666666666666666,
+    "balanced_accuracy": 0.6666666666666666,
+    "per_class": {
+      "negative": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1
+      },
+      "neutral": {
+        "precision": 0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 1
+      },
+      "positive": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1
+      }
+    },
+    "confusion_matrix": {
+      "negative": {
+        "negative": 1,
+        "neutral": 0,
+        "positive": 0,
+        "invalid": 0
+      },
+      "neutral": {
+        "negative": 0,
+        "neutral": 0,
+        "positive": 0,
+        "invalid": 1
+      },
+      "positive": {
+        "negative": 0,
+        "neutral": 0,
+        "positive": 1,
+        "invalid": 0
+      }
+    },
+    "api_cost_usd": null,
+    "provider": null,
+    "provider_verified": false,
+    "mean_confidence": null,
+    "confidence_samples": 2,
+    "total_inference_seconds": 129.0505457080003,
+    "mean_latency_ms": 43016.84856933343,
+    "model_run_wall_seconds": 129.05094018499994
+  },
+  {
+    "model": "google/gemma-4-31b-it",
+    "endpoint": "https://llmfoundry.straivedemo.com/openrouter/v1/chat/completions",
+    "requested_provider": "deepinfra/fp8",
+    "expected_provider": "DeepInfra",
+    "provider_routing": {
+      "order": [
+        "deepinfra/fp8"
+      ],
+      "only": [
+        "deepinfra/fp8"
+      ],
+      "allow_fallbacks": false,
+      "require_parameters": true
+    },
+    "temperature": 0,
+    "reasoning_effort": "low",
+    "samples": 3,
+    "successful": 3,
+    "failed": 0,
+    "accuracy": 1.0,
+    "macro_f1": 1.0,
+    "balanced_accuracy": 1.0,
+    "per_class": {
+      "negative": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1
+      },
+      "neutral": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1
+      },
+      "positive": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1
+      }
+    },
+    "confusion_matrix": {
+      "negative": {
+        "negative": 1,
+        "neutral": 0,
+        "positive": 0,
+        "invalid": 0
+      },
+      "neutral": {
+        "negative": 0,
+        "neutral": 1,
+        "positive": 0,
+        "invalid": 0
+      },
+      "positive": {
+        "negative": 0,
+        "neutral": 0,
+        "positive": 1,
+        "invalid": 0
+      }
+    },
+    "api_cost_usd": 0.00036399999999999996,
+    "provider": "DeepInfra",
+    "provider_verified": true,
+    "mean_confidence": 0.9633333333333333,
+    "confidence_samples": 3,
+    "total_inference_seconds": 26.17992565599934,
+    "mean_latency_ms": 8726.641885333114,
+    "model_run_wall_seconds": 26.180290071999934
+  }
+]

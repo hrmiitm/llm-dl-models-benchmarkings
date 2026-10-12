@@ -1,0 +1,74 @@
+[
+  {
+    "model": "google/gemma-4-26b-a4b-it",
+    "endpoint": "https://llmfoundry.straivedemo.com/openrouter/v1/chat/completions",
+    "requested_provider": "deepinfra/fp8",
+    "expected_provider": "DeepInfra",
+    "provider_routing": {
+      "order": [
+        "deepinfra/fp8"
+      ],
+      "only": [
+        "deepinfra/fp8"
+      ],
+      "allow_fallbacks": false,
+      "require_parameters": true
+    },
+    "temperature": 0,
+    "reasoning_effort": "low",
+    "samples": 3,
+    "successful": 3,
+    "failed": 0,
+    "accuracy": 1.0,
+    "macro_f1": 1.0,
+    "balanced_accuracy": 1.0,
+    "per_class": {
+      "negative": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1
+      },
+      "neutral": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1
+      },
+      "positive": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1
+      }
+    },
+    "confusion_matrix": {
+      "negative": {
+        "negative": 1,
+        "neutral": 0,
+        "positive": 0,
+        "invalid": 0
+      },
+      "neutral": {
+        "negative": 0,
+        "neutral": 1,
+        "positive": 0,
+        "invalid": 0
+      },
+      "positive": {
+        "negative": 0,
+        "neutral": 0,
+        "positive": 1,
+        "invalid": 0
+      }
+    },
+    "api_cost_usd": 0.00030346,
+    "provider": "DeepInfra",
+    "provider_verified": true,
+    "mean_confidence": 0.9633333333333333,
+    "confidence_samples": 3,
+    "total_inference_seconds": 43.30429086799995,
+    "mean_latency_ms": 14434.763622666651,
+    "model_run_wall_seconds": 43.30472790399972
+  }
+]

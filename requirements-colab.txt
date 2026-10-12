@@ -1,4 +1,4 @@
-# Colab already includes CUDA-enabled torch; keep it when it satisfies this range.
+# Install with uv pip in the Colab runtime; keep compatible CUDA-enabled torch.
 torch>=2.6,<3
 transformers>=4.48,<6
 sentencepiece>=0.2,<1

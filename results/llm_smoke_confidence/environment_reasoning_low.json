@@ -1,0 +1,24 @@
+{
+  "started_at_utc": "2026-10-12T19:58:30.174060+00:00",
+  "python": "3.12.14",
+  "platform": "Linux-7.1.7-200.fc44.x86_64-x86_64-with-glibc2.43",
+  "git_revision": "e067018a3c7641552b1ff56d1c38a89f7e025735",
+  "source_sha256": {
+    "data_prepare.py": "9f903f63913ca66f413f14ffe7371101305ef4ffaf627241e472777144534400",
+    "run_dl_models.py": "e34c83fde6b0137ed7a4d9da9a67487f7dd81f7a22edfed295806b8472267d78",
+    "run_llm_models.py": "ca603186f20e329af6166445c733ca30bc300e446aac8ddedee2c023e89c252e",
+    "benchmark_common.py": "f3a7cb0f7291ba12a9b0c8e47bd6ae2174053b41ac9e274a952f1442efd65caa"
+  },
+  "arguments": {
+    "reasoning": "low",
+    "provider": "llmfoundry",
+    "models": null,
+    "limit": null,
+    "smoke": true,
+    "output_dir": "results/llm_smoke_confidence"
+  },
+  "inputs": {
+    "/home/kit/Documents/Sep2026/llm-dl-models-benchmarkings/data/test_30.csv": "d6b2dfe616a6bb42ee3d20fed88339855ab5e4bf50fd2907e00b5e274fa63442",
+    "/home/kit/Documents/Sep2026/llm-dl-models-benchmarkings/data/answer_key_30.csv": "dfe4c6525663fc44858b74a9348e2206c04feec16c07c90fe78f651f3c89e3aa"
+  }
+}

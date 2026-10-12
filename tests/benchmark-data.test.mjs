@@ -84,7 +84,7 @@ test('overall means are per run, not an ensemble or a three-run charge',()=>{
  const config=baseConfig(),configs=[0,1,2].map((i)=>({...config,effort:['low','medium','high'][i],cost:(i+1)*.01,cost_kind:'LLM token estimate',accuracy:(i+1)/3}));
  const overall=overallConfigs(configs)[0];assert.equal(overall.samples,3);assert.equal(overall.attempts,9);assert.equal(overall.cost,.02);assert.equal(overall.accuracy,2/3);assert.equal(overall.matrix.flat().reduce((a,b)=>a+b,0),9);
 });
-test('actual result metrics agree with the independently saved evaluation',()=>{
+test('actual result metrics agree with the independently saved evaluation', {skip: !fs.existsSync(new URL('../results/manifest.json',import.meta.url)) ? 'Import benchmark results and rebuild the manifest first.' : false}, ()=>{
  const manifest=JSON.parse(fs.readFileSync(new URL('../results/manifest.json',import.meta.url)));
  const files=manifest.files.map(f=>{const text=fs.readFileSync(new URL('../'+f.path,import.meta.url),'utf8');return {...f,data:f.path.endsWith('.jsonl')?text.trim().split(/\r?\n/).map(JSON.parse):JSON.parse(text)};});
  const result=prepareData(files,parseCSV(fs.readFileSync(new URL('../'+manifest.ground_truth,import.meta.url),'utf8')));

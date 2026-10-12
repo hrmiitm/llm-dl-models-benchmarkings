@@ -183,7 +183,7 @@ function renderMatrix(){const configs=selected(),c=configs.find(c=>c.id===state.
 }
 function renderSources(){
   $('#source-list').replaceChildren(...sources.map(path=>{const li=node('li',null);li.append(node('a',path,{href:path,target:'_blank',rel:'noopener'}));return li;}));
-  $('#loaded-at').textContent=`Loaded ${loadedAt.toLocaleString()}. Add new result files and run python scripts/build_results_manifest.py to update the static file index; metrics are recalculated in your browser.`;
+  $('#loaded-at').textContent=`Loaded ${loadedAt.toLocaleString()}. Add new result files and use uv run python scripts/build_results_manifest.py to update the static file index; metrics are recalculated in your browser.`;
   const root=$('#pricing-sources');root.replaceChildren(node('h3','Reference pricing'));const list=node('ul',null);
   for(const [model,rate]of Object.entries(pricing.llm_rates??{})){const li=node('li',null);li.append(document.createTextNode(`${nameOf(model)}: $${rate.input_usd_per_million} / $${rate.output_usd_per_million} per million input / output tokens. `),node('a','Provider source ↗',{href:rate.source,target:'_blank',rel:'noopener'}));if(rate.valid_through)li.append(document.createTextNode(` Rate valid through ${rate.valid_through}.`));list.append(li);}root.append(list);if(pricing.note)root.append(node('p',pricing.note));
 }

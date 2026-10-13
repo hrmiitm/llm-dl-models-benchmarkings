@@ -272,7 +272,7 @@ $('reset-filters').onclick = () => {
   for (const id of ['cost-model', 'cost-reasoning', 'confidence-model', 'confidence-reasoning', 'confidence-source', 'table-model', 'table-filter']) $(id).value = 'all';
   $('cost-scale').value = 'log'; $('accuracy-range').value = 'full'; $('confidence-range').value = 'full';
   $('dl-rate').value = rates.presets[0].id; $('custom-rate').value = ''; $('cost-basis').value = 'inference';
-  $('table-group').value = 'model'; $('table-sort').value = 'model'; $('table-direction').value = 'asc'; $('table-search').value = '';
+  $('table-group').value = 'none'; $('table-sort').value = 'model'; $('table-direction').value = 'asc'; $('table-search').value = '';
   $('cost-labels').checked = $('confidence-labels').checked = true;
   hidden.cost.clear(); hidden.confidence.clear(); collapsed.clear(); render();
 };
